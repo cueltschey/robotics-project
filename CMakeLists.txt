@@ -16,7 +16,7 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 
 include_directories(${OPENGL_INCLUDE_DIR} ${GLM_INCLUDE_DIRS} /usr/include/GLFW)
-file(GLOB LIB_SRC lib/*.cpp)
+file(GLOB LIB_SRC lib/shapes/*.cpp)
 include_directories(include)
 add_executable(boids main.cpp ${LIB_SRC})
 target_link_libraries(boids ${OPENGL_gl_LIBRARY} glfw glm::glm GLEW)

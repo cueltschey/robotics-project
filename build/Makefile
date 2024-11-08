@@ -129,6 +129,54 @@ boids/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/build
 .PHONY : boids/fast
 
+lib/shapes/box.o: lib/shapes/box.cpp.o
+.PHONY : lib/shapes/box.o
+
+# target to build an object file
+lib/shapes/box.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/lib/shapes/box.cpp.o
+.PHONY : lib/shapes/box.cpp.o
+
+lib/shapes/box.i: lib/shapes/box.cpp.i
+.PHONY : lib/shapes/box.i
+
+# target to preprocess a source file
+lib/shapes/box.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/lib/shapes/box.cpp.i
+.PHONY : lib/shapes/box.cpp.i
+
+lib/shapes/box.s: lib/shapes/box.cpp.s
+.PHONY : lib/shapes/box.s
+
+# target to generate assembly for a file
+lib/shapes/box.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/lib/shapes/box.cpp.s
+.PHONY : lib/shapes/box.cpp.s
+
+lib/shapes/sphere.o: lib/shapes/sphere.cpp.o
+.PHONY : lib/shapes/sphere.o
+
+# target to build an object file
+lib/shapes/sphere.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o
+.PHONY : lib/shapes/sphere.cpp.o
+
+lib/shapes/sphere.i: lib/shapes/sphere.cpp.i
+.PHONY : lib/shapes/sphere.i
+
+# target to preprocess a source file
+lib/shapes/sphere.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/lib/shapes/sphere.cpp.i
+.PHONY : lib/shapes/sphere.cpp.i
+
+lib/shapes/sphere.s: lib/shapes/sphere.cpp.s
+.PHONY : lib/shapes/sphere.s
+
+# target to generate assembly for a file
+lib/shapes/sphere.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/lib/shapes/sphere.cpp.s
+.PHONY : lib/shapes/sphere.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -162,6 +210,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... boids"
+	@echo "... lib/shapes/box.o"
+	@echo "... lib/shapes/box.i"
+	@echo "... lib/shapes/box.s"
+	@echo "... lib/shapes/sphere.o"
+	@echo "... lib/shapes/sphere.i"
+	@echo "... lib/shapes/sphere.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

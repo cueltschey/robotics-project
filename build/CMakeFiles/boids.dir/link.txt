@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/boids.dir/main.cpp.o -o boids  /usr/lib/x86_64-linux-gnu/libGL.so /usr/lib/x86_64-linux-gnu/libglfw.so.3.3 -lGLEW 
+/usr/bin/c++ CMakeFiles/boids.dir/main.cpp.o CMakeFiles/boids.dir/lib/shapes/box.cpp.o CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o -o boids  /usr/lib/x86_64-linux-gnu/libGL.so /usr/lib/x86_64-linux-gnu/libglfw.so.3.3 -lGLEW 

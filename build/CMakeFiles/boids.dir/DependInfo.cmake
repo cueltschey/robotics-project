@@ -8,6 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/ntia/robotics-project/lib/shapes/box.cpp" "CMakeFiles/boids.dir/lib/shapes/box.cpp.o" "gcc" "CMakeFiles/boids.dir/lib/shapes/box.cpp.o.d"
+  "/home/ntia/robotics-project/lib/shapes/sphere.cpp" "CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o" "gcc" "CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o.d"
   "/home/ntia/robotics-project/main.cpp" "CMakeFiles/boids.dir/main.cpp.o" "gcc" "CMakeFiles/boids.dir/main.cpp.o.d"
   )
 

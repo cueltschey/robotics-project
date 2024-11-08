@@ -1,4 +1,8 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/boids.dir/lib/shapes/box.cpp.o"
+  "CMakeFiles/boids.dir/lib/shapes/box.cpp.o.d"
+  "CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o"
+  "CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o.d"
   "CMakeFiles/boids.dir/main.cpp.o"
   "CMakeFiles/boids.dir/main.cpp.o.d"
   "boids"
