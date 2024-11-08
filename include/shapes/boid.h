@@ -8,7 +8,8 @@ class Boid {
 public:
     Boid(float size, glm::vec3 start_pos);
 
-    void updatePos(glm::vec3 next_pos);
+    void updatePos();
+    void applyForce(glm::vec3 force_direction, float strength);
     void draw() const;
 
     float getX() const { return position.x; }
@@ -26,11 +27,10 @@ private:
 
     glm::vec3 direction;
 
+
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
 
     GLuint VAO, VBO, EBO;
-
-    float speed = 0.01f;
 };
 

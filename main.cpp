@@ -95,7 +95,7 @@ int main() {
 
     glm::vec3 lightPos  = glm::vec3(0.0f, 0.0f,  0.0f);
 
-    std::vector<Box> boxes = generateRandomBoxes(100,2,5);
+    std::vector<Box> boxes = generateRandomBoxes(10,2,5);
 
     glm::vec3 boid_start = getRandomPointOutsideBoxes(boxes, 5);
     cameraPos = boid_start + glm::vec3(0.0f,0.0f,1.0f);
@@ -109,10 +109,6 @@ int main() {
 
     Shader lightingShader("../shaders/shadow.vs", "../shaders/shadow.fs");
 
-
-    std::vector<glm::vec3> path = aStar(boid_start, goal_pos, boxes);
-
-    int frame = 1;
 
 
     while (!glfwWindowShouldClose(window)) {
@@ -157,16 +153,10 @@ int main() {
         }
 
         lightingShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
-        if (!path.empty()) {
-          drawPath(path, boid.getPos());
-        }
-        if(path.size() >= 2){
-        boid.updatePos(path[1]);
-        boid_start = boid.getPos();
 
         ray_points.clear();
         for(auto dir : directions){
-          glm::vec3 rayPosition = boid_start;
+          glm::vec3 rayPosition = boid.getPos();
 
           float stepSize = 0.0001f;
           float maxDistance = 0.01f;
@@ -186,10 +176,10 @@ int main() {
           }
         }
 
-        if(abs(glm::length(boid_start - path[0])) == 0.00f){
-          path.erase(path.begin());
-        }
-        }
+        glm::vec3 new_direction = glm::normalize(goal_pos - boid.getPos());
+        boid.applyForce(new_direction, 1.0f);
+        boid.updatePos();
+
         goal.draw();
 
         lightPos = glm::vec3(boid.getX(), boid.getY() + 0.3f, boid.getZ());

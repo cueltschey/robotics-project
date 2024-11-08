@@ -1,7 +1,7 @@
 #include "shapes/boid.h"
 
 Boid::Boid(float size, glm::vec3 start_pos)
-    : size(size), position(start_pos) {
+    : size(size), position(start_pos), direction(0.0f,0.0f,0.0f) {
 
     modelMatrix = glm::mat4(1.0f);
     buildVertices();
@@ -99,12 +99,18 @@ void Boid::buildVertices() {
 }
 
 
-void Boid::updatePos(glm::vec3 next_pos) {
-    direction = glm::normalize(next_pos - position);
-
-    // Update position based on direction and speed
-    position += direction * speed;
+void Boid::updatePos() {
+    position += direction * 0.01f;
+    direction *= 0.91f;
     buildVertices();
+}
+
+void Boid::applyForce(glm::vec3 force_direction, float strength) {
+    glm::vec3 normalized_force = glm::normalize(force_direction);
+    glm::vec3 force = normalized_force;
+
+    direction += force * 0.1f;
+    direction = glm::normalize(direction);
 }
 
 void Boid::draw() const {
