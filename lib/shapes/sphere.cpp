@@ -4,9 +4,27 @@
 #include <vector>
 #include <cmath>
 
-Sphere::Sphere(float radius, int sectorCount, int stackCount, float xPos, float yPos, float zPos)
-    : radius(radius), sectorCount(sectorCount), stackCount(stackCount), x(xPos), y(yPos), z(zPos) {
+Sphere::Sphere(float radius, glm::vec3 start_pos)
+    : radius(radius), x(start_pos[0]), y(start_pos[1]), z(start_pos[2]) {
+    
+    // Calculate sector and stack counts based on radius, with a minimum count
+    sectorCount = std::max(18, static_cast<int>(radius * 10)); // Higher for larger radii
+    stackCount = std::max(9, static_cast<int>(radius * 5));    // Proportionally lower than sectors
+
     buildVertices();
+}
+
+void Sphere::updatePos(glm::vec3 next_pos) {
+    glm::vec3 direction = glm::normalize(next_pos - glm::vec3(x, y, z));
+
+    // Update position based on direction and speed
+    glm::vec3 new_pos = glm::vec3(x, y, z) + direction * speed;
+    x = new_pos[0];
+    y = new_pos[1];
+    z = new_pos[2];
+
+    // Rebuild vertices to reflect the new position
+    rebuildVertices();
 }
 
 void Sphere::setPosition(float xPos, float yPos, float zPos) {
@@ -18,7 +36,7 @@ void Sphere::setPosition(float xPos, float yPos, float zPos) {
 }
 
 void Sphere::buildVertices() {
-    float xy;
+    float xy; 
     float sectorStep = 2 * M_PI / sectorCount;
     float stackStep = M_PI / stackCount;
     float sectorAngle, stackAngle;
@@ -29,18 +47,18 @@ void Sphere::buildVertices() {
 
     // Generate vertices and normals
     for (int i = 0; i <= stackCount; ++i) {
-        stackAngle = M_PI / 2 - i * stackStep;      // starting from pi/2 to -pi/2
-        xy = radius * cosf(stackAngle);             // r * cos(u)
-        z = radius * sinf(stackAngle);              // r * sin(u)
+        stackAngle = M_PI / 2 - i * stackStep;          // from pi/2 to -pi/2
+        xy = radius * cosf(stackAngle);                 // r * cos(stackAngle)
+        float localZ = radius * sinf(stackAngle);       // r * sin(stackAngle)
 
-        // Add (sectorCount+1) vertices per stack
+        // Add vertices per sector
         for (int j = 0; j <= sectorCount; ++j) {
-            sectorAngle = j * sectorStep;           // starting from 0 to 2pi
+            sectorAngle = j * sectorStep;               // from 0 to 2pi
 
-            // Vertex position with applied offset (x, y, z)
-            float vertexX = xy * cosf(sectorAngle) + x;
-            float vertexY = xy * sinf(sectorAngle) + y;
-            float vertexZ = z + z;
+            // Vertex positions with applied offset (x, y, z)
+            float vertexX = xy * cosf(sectorAngle) + this->x;
+            float vertexY = xy * sinf(sectorAngle) + this->y;
+            float vertexZ = localZ + this->z;
 
             vertices.push_back(vertexX);
             vertices.push_back(vertexY);
@@ -49,14 +67,14 @@ void Sphere::buildVertices() {
             // Normal vector (normalized position)
             vertices.push_back(xy * cosf(sectorAngle) / radius);
             vertices.push_back(xy * sinf(sectorAngle) / radius);
-            vertices.push_back(z / radius);
+            vertices.push_back(localZ / radius);
         }
     }
 
-    // Generate indices
+    // Generate indices for the triangles of each stack
     for (int i = 0; i < stackCount; ++i) {
-        int k1 = i * (sectorCount + 1);             // beginning of current stack
-        int k2 = k1 + sectorCount + 1;              // beginning of next stack
+        int k1 = i * (sectorCount + 1);                 // beginning of current stack
+        int k2 = k1 + sectorCount + 1;                  // beginning of next stack
 
         for (int j = 0; j < sectorCount; ++j, ++k1, ++k2) {
             if (i != 0) {
@@ -85,11 +103,13 @@ void Sphere::buildVertices() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
+    // Position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0); // Position
+    glEnableVertexAttribArray(0);
 
+    // Normal attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1); // Normal
+    glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
 }

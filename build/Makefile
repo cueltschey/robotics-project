@@ -129,6 +129,30 @@ boids/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/build
 .PHONY : boids/fast
 
+lib/shapes/boid.o: lib/shapes/boid.cpp.o
+.PHONY : lib/shapes/boid.o
+
+# target to build an object file
+lib/shapes/boid.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/lib/shapes/boid.cpp.o
+.PHONY : lib/shapes/boid.cpp.o
+
+lib/shapes/boid.i: lib/shapes/boid.cpp.i
+.PHONY : lib/shapes/boid.i
+
+# target to preprocess a source file
+lib/shapes/boid.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/lib/shapes/boid.cpp.i
+.PHONY : lib/shapes/boid.cpp.i
+
+lib/shapes/boid.s: lib/shapes/boid.cpp.s
+.PHONY : lib/shapes/boid.s
+
+# target to generate assembly for a file
+lib/shapes/boid.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/lib/shapes/boid.cpp.s
+.PHONY : lib/shapes/boid.cpp.s
+
 lib/shapes/box.o: lib/shapes/box.cpp.o
 .PHONY : lib/shapes/box.o
 
@@ -210,6 +234,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... boids"
+	@echo "... lib/shapes/boid.o"
+	@echo "... lib/shapes/boid.i"
+	@echo "... lib/shapes/boid.s"
 	@echo "... lib/shapes/box.o"
 	@echo "... lib/shapes/box.i"
 	@echo "... lib/shapes/box.s"

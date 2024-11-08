@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include "shapes/sphere.h"
 #include "shapes/box.h"
+#include "shapes/boid.h"
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -17,6 +18,43 @@
 #include <cmath>
 #include <algorithm>
 #include "algorithm/astar.h"
+
+
+glm::vec3 getRandomPointOutsideBoxes(const std::vector<Box>& boxes, float maxPosition, float minDistance = 0.5f) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> posDist(-maxPosition, maxPosition);
+
+    glm::vec3 randomPoint;
+    bool isValid;
+
+    do {
+        // Generate a random point
+        randomPoint = glm::vec3(posDist(gen), posDist(gen), posDist(gen));
+        isValid = true;
+
+        // Check the point against each box to ensure it’s outside by at least minDistance
+        for (const Box& box : boxes) {
+            glm::vec3 boxMin(box.getX() - box.getWidth() / 2 - minDistance,
+                             box.getY() - box.getHeight() / 2 - minDistance,
+                             box.getZ() - box.getDepth() / 2 - minDistance);
+
+            glm::vec3 boxMax(box.getX() + box.getWidth() / 2 + minDistance,
+                             box.getY() + box.getHeight() / 2 + minDistance,
+                             box.getZ() + box.getDepth() / 2 + minDistance);
+
+            // Check if the point is within the box bounds extended by minDistance
+            if (randomPoint.x >= boxMin.x && randomPoint.x <= boxMax.x &&
+                randomPoint.y >= boxMin.y && randomPoint.y <= boxMax.y &&
+                randomPoint.z >= boxMin.z && randomPoint.z <= boxMax.z) {
+                isValid = false;
+                break;
+            }
+        }
+    } while (!isValid); // Repeat until a valid point is found
+
+    return randomPoint;
+}
 
 std::vector<Box> generateRandomBoxes(int numBoxes, float maxSize, float maxPosition) {
     std::vector<Box> boxes;
@@ -56,25 +94,25 @@ int main() {
 
 
     glm::vec3 lightPos  = glm::vec3(0.0f, 0.0f,  0.0f);
-    Sphere boid(0.1f, 18, 18, 0.0f, 0.0f, 0.0f);
-    Sphere goal(0.1f, 18, 18, 5.0f, 5.0f, 5.0f);
-    float s_x = 0.0f;
-    float b_x = 10.0f;
-    //Box box(5.0f);
-    std::vector<Box> boxes = generateRandomBoxes(40,10,60);
+
+    std::vector<Box> boxes = generateRandomBoxes(100,2,5);
+
+    glm::vec3 boid_start = getRandomPointOutsideBoxes(boxes, 5);
+    cameraPos = boid_start + glm::vec3(0.0f,0.0f,1.0f);
+    glm::vec3 goal_pos = getRandomPointOutsideBoxes(boxes, 5);
+    Boid boid(0.1f, boid_start);
+    Sphere goal(0.1f, goal_pos);
+    goal_pos = glm::vec3(goal.getX(), goal.getY(), goal.getZ());
+
 
     glEnable(GL_DEPTH_TEST);
 
-    glm::vec3 start(0.0f, 0.0f, 0.0f);
-    glm::vec3 goal_pos(goal.getX(), goal.getY(), goal.getZ());
-
     Shader lightingShader("../shaders/shadow.vs", "../shaders/shadow.fs");
 
-    std::vector<glm::vec3> path = aStar(start, goal_pos, boxes);
 
-    std::cout << "path: " << path.size() << std::endl;
+    std::vector<glm::vec3> path = aStar(boid_start, goal_pos, boxes);
 
-    int frame = 0;
+    int frame = 1;
 
 
     while (!glfwWindowShouldClose(window)) {
@@ -120,26 +158,47 @@ int main() {
 
         lightingShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
         if (!path.empty()) {
-          drawPath(path);
+          drawPath(path, boid.getPos());
+        }
+        if(path.size() >= 2){
+        boid.updatePos(path[1]);
+        boid_start = boid.getPos();
+
+        ray_points.clear();
+        for(auto dir : directions){
+          glm::vec3 rayPosition = boid_start;
+
+          float stepSize = 0.0001f;
+          float maxDistance = 0.01f;
+          for (float distance = 0.0f; distance <= maxDistance; distance += stepSize) {
+              rayPosition += dir;
+
+              // Check for collision with any box
+              auto collisionBox = std::find_if(boxes.begin(), boxes.end(), [&](const Box& box) {
+                  return box.contains(rayPosition);
+              });
+
+              // If a collision is found, record the point and stop this ray
+              if (collisionBox != boxes.end()) {
+                  ray_points.push_back(rayPosition);
+                  break;
+              }
+          }
+        }
+
+        if(abs(glm::length(boid_start - path[0])) == 0.00f){
+          path.erase(path.begin());
+        }
         }
         goal.draw();
 
-        s_x += 0.01f;
-        b_x -= 0.001f;
-        boid.setPosition(s_x, 0.0f, 0.0f);
-        lightPos = glm::vec3(s_x, 0.3f, 0.0f);
-
-        if(frame % 10 == 0){
-          start = glm::vec3(s_x, 0.0f,0.0f);
-          path = aStar(start, goal_pos, boxes);
-          std::cout << "path: " << path.size() << std::endl;
-        }
-        frame++;
+        lightPos = glm::vec3(boid.getX(), boid.getY() + 0.3f, boid.getZ());
 
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
 
     glfwDestroyWindow(window);
     glfwTerminate();

@@ -83,10 +83,24 @@ CMakeFiles/boids.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/boids.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ntia/robotics-project/main.cpp -o CMakeFiles/boids.dir/main.cpp.s
 
+CMakeFiles/boids.dir/lib/shapes/boid.cpp.o: CMakeFiles/boids.dir/flags.make
+CMakeFiles/boids.dir/lib/shapes/boid.cpp.o: ../lib/shapes/boid.cpp
+CMakeFiles/boids.dir/lib/shapes/boid.cpp.o: CMakeFiles/boids.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ntia/robotics-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/boids.dir/lib/shapes/boid.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/boids.dir/lib/shapes/boid.cpp.o -MF CMakeFiles/boids.dir/lib/shapes/boid.cpp.o.d -o CMakeFiles/boids.dir/lib/shapes/boid.cpp.o -c /home/ntia/robotics-project/lib/shapes/boid.cpp
+
+CMakeFiles/boids.dir/lib/shapes/boid.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/boids.dir/lib/shapes/boid.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ntia/robotics-project/lib/shapes/boid.cpp > CMakeFiles/boids.dir/lib/shapes/boid.cpp.i
+
+CMakeFiles/boids.dir/lib/shapes/boid.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/boids.dir/lib/shapes/boid.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ntia/robotics-project/lib/shapes/boid.cpp -o CMakeFiles/boids.dir/lib/shapes/boid.cpp.s
+
 CMakeFiles/boids.dir/lib/shapes/box.cpp.o: CMakeFiles/boids.dir/flags.make
 CMakeFiles/boids.dir/lib/shapes/box.cpp.o: ../lib/shapes/box.cpp
 CMakeFiles/boids.dir/lib/shapes/box.cpp.o: CMakeFiles/boids.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ntia/robotics-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/boids.dir/lib/shapes/box.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ntia/robotics-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/boids.dir/lib/shapes/box.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/boids.dir/lib/shapes/box.cpp.o -MF CMakeFiles/boids.dir/lib/shapes/box.cpp.o.d -o CMakeFiles/boids.dir/lib/shapes/box.cpp.o -c /home/ntia/robotics-project/lib/shapes/box.cpp
 
 CMakeFiles/boids.dir/lib/shapes/box.cpp.i: cmake_force
@@ -100,7 +114,7 @@ CMakeFiles/boids.dir/lib/shapes/box.cpp.s: cmake_force
 CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o: CMakeFiles/boids.dir/flags.make
 CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o: ../lib/shapes/sphere.cpp
 CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o: CMakeFiles/boids.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ntia/robotics-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ntia/robotics-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o -MF CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o.d -o CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o -c /home/ntia/robotics-project/lib/shapes/sphere.cpp
 
 CMakeFiles/boids.dir/lib/shapes/sphere.cpp.i: cmake_force
@@ -114,6 +128,7 @@ CMakeFiles/boids.dir/lib/shapes/sphere.cpp.s: cmake_force
 # Object files for target boids
 boids_OBJECTS = \
 "CMakeFiles/boids.dir/main.cpp.o" \
+"CMakeFiles/boids.dir/lib/shapes/boid.cpp.o" \
 "CMakeFiles/boids.dir/lib/shapes/box.cpp.o" \
 "CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o"
 
@@ -121,13 +136,14 @@ boids_OBJECTS = \
 boids_EXTERNAL_OBJECTS =
 
 boids: CMakeFiles/boids.dir/main.cpp.o
+boids: CMakeFiles/boids.dir/lib/shapes/boid.cpp.o
 boids: CMakeFiles/boids.dir/lib/shapes/box.cpp.o
 boids: CMakeFiles/boids.dir/lib/shapes/sphere.cpp.o
 boids: CMakeFiles/boids.dir/build.make
 boids: /usr/lib/x86_64-linux-gnu/libGL.so
 boids: /usr/lib/x86_64-linux-gnu/libglfw.so.3.3
 boids: CMakeFiles/boids.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ntia/robotics-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable boids"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ntia/robotics-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable boids"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/boids.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

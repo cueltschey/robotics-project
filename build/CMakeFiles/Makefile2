@@ -81,12 +81,12 @@ clean: CMakeFiles/boids.dir/clean
 CMakeFiles/boids.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/boids.dir/build.make CMakeFiles/boids.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ntia/robotics-project/build/CMakeFiles --progress-num=1,2,3,4 "Built target boids"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ntia/robotics-project/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target boids"
 .PHONY : CMakeFiles/boids.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/boids.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ntia/robotics-project/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ntia/robotics-project/build/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/boids.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/ntia/robotics-project/build/CMakeFiles 0
 .PHONY : CMakeFiles/boids.dir/rule

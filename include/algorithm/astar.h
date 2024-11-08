@@ -21,42 +21,9 @@
 #include <algorithm>
 #include <unordered_set>
 
-namespace std {
-    template <>
-    struct hash<glm::vec3> {
-        size_t operator()(const glm::vec3& v) const {
-            size_t h1 = std::hash<float>()(v.x);
-            size_t h2 = std::hash<float>()(v.y);
-            size_t h3 = std::hash<float>()(v.z);
-            return h1 ^ (h2 << 1) ^ (h3 << 2);
-        }
-    };
-}
+std::vector<glm::vec3> ray_points;
 
-struct Node {
-    glm::vec3 position;
-    float g = FLT_MAX;  // Cost from start
-    float h = 0.0f;     // Heuristic cost to goal
-    float f = FLT_MAX;  // Total cost
-    Node* parent = nullptr;
-
-    Node(glm::vec3 pos) : position(pos) {}
-
-    // Comparison operator for priority queue (min-heap)
-    bool operator>(const Node& other) const {
-        return f > other.f;
-    }
-};
-
-// Manhattan distance heuristic
-float manhattanDistance(const glm::vec3& a, const glm::vec3& b) {
-    return std::abs(a.x - b.x) + std::abs(a.y - b.y) + std::abs(a.z - b.z);
-}
-
-std::vector<glm::vec3> aStar(glm::vec3 start, glm::vec3 goal, const std::vector<Box>& boxes) {
-    // Define the grid size and movement directions
-    const float gridSize = 1.0f; // size of each grid cell
-    std::vector<glm::vec3> directions = {
+std::vector<glm::vec3> directions = {
         glm::vec3(1.0f, 0.0f, 0.0f),  // Right
         glm::vec3(-1.0f, 0.0f, 0.0f), // Left
         glm::vec3(0.0f, 1.0f, 0.0f),  // Up
@@ -93,6 +60,46 @@ std::vector<glm::vec3> aStar(glm::vec3 start, glm::vec3 goal, const std::vector<
     };
 
 
+
+namespace std {
+    template <>
+    struct hash<glm::vec3> {
+        size_t operator()(const glm::vec3& v) const {
+            size_t h1 = std::hash<float>()(v.x);
+            size_t h2 = std::hash<float>()(v.y);
+            size_t h3 = std::hash<float>()(v.z);
+            return h1 ^ (h2 << 1) ^ (h3 << 2);
+        }
+    };
+}
+
+struct Node {
+    glm::vec3 position;
+    float g = FLT_MAX;  // Cost from start
+    float h = 0.0f;     // Heuristic cost to goal
+    float f = FLT_MAX;  // Total cost
+    Node* parent = nullptr;
+
+    Node(glm::vec3 pos) : position(pos) {}
+
+    // Comparison operator for priority queue (min-heap)
+    bool operator>(const Node& other) const {
+        return f > other.f;
+    }
+};
+
+
+
+// Manhattan distance heuristic
+float manhattanDistance(const glm::vec3& a, const glm::vec3& b) {
+    return std::abs(a.x - b.x) + std::abs(a.y - b.y) + std::abs(a.z - b.z);
+}
+
+std::vector<glm::vec3> aStar(glm::vec3 start, glm::vec3 goal, const std::vector<Box>& boxes) {
+    // Define the grid size and movement directions
+    const float gridSize = 0.01f; // size of each grid cell
+    
+
     std::priority_queue<Node, std::vector<Node>, std::greater<Node>> openSet;
     std::unordered_set<glm::vec3> closedSet;
     Node* startNode = new Node(start);
@@ -106,12 +113,17 @@ std::vector<glm::vec3> aStar(glm::vec3 start, glm::vec3 goal, const std::vector<
 
     Node* currentNode;
 
+    bool first = true;
+
+    ray_points.clear();
+
     while (!openSet.empty()) {
         currentNode = new Node(openSet.top());
         openSet.pop();
 
+
         // If the goal is reached, reconstruct the path
-         if (glm::distance(currentNode->position, goal) <= 1.0f){
+         if (glm::distance(currentNode->position, goal) <= 0.2f){
             std::vector<glm::vec3> path;
             while (currentNode != nullptr) {
                 path.push_back(currentNode->position);
@@ -123,12 +135,17 @@ std::vector<glm::vec3> aStar(glm::vec3 start, glm::vec3 goal, const std::vector<
 
         closedSet.insert(currentNode->position);
 
+
+
+
+
         // Explore neighbors
         for (const glm::vec3& dir : directions) {
+            bool invalid = false;
 
             glm::vec3 neighborPos = currentNode->position + dir * gridSize;
 
-            // TODO: add box check
+
             Node* neighborNode = new Node(neighborPos);
             neighborNode->g = currentNode->g + gridSize;
             neighborNode->h = manhattanDistance(neighborPos, goal);
@@ -150,7 +167,7 @@ std::vector<glm::vec3> aStar(glm::vec3 start, glm::vec3 goal, const std::vector<
     return path;  // Return the path
 }
 
-void drawPath(const std::vector<glm::vec3>& path) {
+void drawPath(const std::vector<glm::vec3>& path, glm::vec3 boid_pos) {
     glLineWidth(5.0f);
 
     glBegin(GL_LINES);
@@ -158,6 +175,12 @@ void drawPath(const std::vector<glm::vec3>& path) {
         glVertex3f(path[i - 1].x, path[i - 1].y, path[i - 1].z);
         glVertex3f(path[i].x, path[i].y, path[i].z);
     }
+
+    for (const auto& end : ray_points) {
+        glVertex3f(boid_pos.x, boid_pos.y, boid_pos.z);
+        glVertex3f(end.x, end.y, end.z);
+    }
+
     glEnd();
 }
 #endif

@@ -37,6 +37,18 @@ public:
         return z + depth / 2;
     }
 
+    float getX() const { return x; }
+    float getY() const { return y; }
+    float getZ() const { return z; }
+    float getWidth() const { return width; }
+    float getHeight() const { return height; }
+    float getDepth() const { return depth; }
+
+    bool contains(const glm::vec3& point) const {
+        return point.x >= getMinX() && point.x <= getMaxX() &&
+               point.y >= getMinY() && point.y <= getMaxY() &&
+               point.z >= getMinZ() && point.z <= getMaxZ();
+    }
 
 
 
