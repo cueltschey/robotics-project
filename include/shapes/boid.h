@@ -30,6 +30,7 @@ private:
 
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
+    float speed = 0.0f;
 
     GLuint VAO, VBO, EBO;
 };

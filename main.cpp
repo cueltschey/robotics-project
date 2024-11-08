@@ -178,6 +178,7 @@ int main() {
 
         glm::vec3 new_direction = glm::normalize(goal_pos - boid.getPos());
         boid.applyForce(new_direction, 1.0f);
+        boid.applyForce(-new_direction, 2.0f / glm::distance(goal_pos, boid.getPos()));
         boid.updatePos();
 
         goal.draw();

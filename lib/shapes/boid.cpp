@@ -100,17 +100,20 @@ void Boid::buildVertices() {
 
 
 void Boid::updatePos() {
-    position += direction * 0.01f;
+    position += direction * speed;
     direction *= 0.91f;
     buildVertices();
 }
 
 void Boid::applyForce(glm::vec3 force_direction, float strength) {
     glm::vec3 normalized_force = glm::normalize(force_direction);
-    glm::vec3 force = normalized_force;
-
+    glm::vec3 force = normalized_force * strength;
     direction += force * 0.1f;
     direction = glm::normalize(direction);
+
+    float force_magnitude = glm::length(force);
+    speed += force_magnitude * 0.0001f;
+    speed = glm::clamp(speed, 0.0f, 5.0f);
 }
 
 void Boid::draw() const {
