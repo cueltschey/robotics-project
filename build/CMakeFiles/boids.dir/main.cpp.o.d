@@ -385,7 +385,4 @@ CMakeFiles/boids.dir/main.cpp.o: /home/ntia/robotics-project/main.cpp \
  /usr/include/c++/11/bits/hashtable_policy.h \
  /usr/include/c++/11/bits/node_handle.h \
  /usr/include/c++/11/bits/unordered_map.h \
- /usr/include/c++/11/bits/erase_if.h \
- /home/ntia/robotics-project/include/algorithm/astar.h \
- /usr/include/c++/11/unordered_set \
- /usr/include/c++/11/bits/unordered_set.h
+ /usr/include/c++/11/bits/erase_if.h

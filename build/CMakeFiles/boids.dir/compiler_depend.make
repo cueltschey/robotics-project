@@ -284,7 +284,37 @@ CMakeFiles/boids.dir/lib/shapes/boid.cpp.o: ../lib/shapes/boid.cpp \
   /usr/include/c++/11/bits/functional_hash.h \
   /usr/include/c++/11/bits/hash_bytes.h \
   /usr/include/c++/11/bits/range_access.h \
-  /usr/include/c++/11/bits/vector.tcc
+  /usr/include/c++/11/bits/vector.tcc \
+  ../include/shapes/box.h \
+  /usr/include/c++/11/algorithm \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  /usr/include/c++/11/bits/stl_algo.h \
+  /usr/include/c++/11/cstdlib \
+  /usr/include/c++/11/bits/algorithmfwd.h \
+  /usr/include/c++/11/bits/stl_heap.h \
+  /usr/include/c++/11/bits/stl_tempbuf.h \
+  /usr/include/c++/11/bits/uniform_int_dist.h \
+  /usr/include/c++/11/pstl/glue_algorithm_defs.h \
+  /usr/include/c++/11/functional \
+  /usr/include/c++/11/bits/stl_function.h \
+  /usr/include/c++/11/backward/binders.h \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/refwrap.h \
+  /usr/include/c++/11/bits/std_function.h \
+  /usr/include/c++/11/typeinfo \
+  /usr/include/c++/11/unordered_map \
+  /usr/include/c++/11/ext/aligned_buffer.h \
+  /usr/include/c++/11/bits/hashtable.h \
+  /usr/include/c++/11/bits/hashtable_policy.h \
+  /usr/include/c++/11/bits/enable_special_members.h \
+  /usr/include/c++/11/bits/node_handle.h \
+  /usr/include/c++/11/bits/unordered_map.h \
+  /usr/include/c++/11/bits/erase_if.h \
+  /usr/include/c++/11/pstl/execution_defs.h
 
 CMakeFiles/boids.dir/lib/shapes/box.cpp.o: ../lib/shapes/box.cpp \
   /usr/include/stdc-predef.h \
@@ -1302,31 +1332,8 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
   /usr/include/c++/11/bits/hashtable_policy.h \
   /usr/include/c++/11/bits/node_handle.h \
   /usr/include/c++/11/bits/unordered_map.h \
-  /usr/include/c++/11/bits/erase_if.h \
-  ../include/algorithm/astar.h \
-  /usr/include/c++/11/unordered_set \
-  /usr/include/c++/11/bits/unordered_set.h
+  /usr/include/c++/11/bits/erase_if.h
 
-
-/usr/include/c++/11/bits/hashtable_policy.h:
-
-/usr/include/c++/11/unordered_map:
-
-/usr/include/c++/11/bits/refwrap.h:
-
-/usr/include/c++/11/bits/invoke.h:
-
-/usr/include/c++/11/tuple:
-
-/usr/include/c++/11/bits/std_function.h:
-
-/usr/include/c++/11/bits/stl_tempbuf.h:
-
-/usr/include/c++/11/bits/stl_algo.h:
-
-/usr/include/c++/11/algorithm:
-
-/usr/include/c++/11/bits/uses_allocator.h:
 
 /usr/include/c++/11/bits/deque.tcc:
 
@@ -1364,10 +1371,6 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/glm/ext/vector_float1.hpp:
 
-/usr/include/c++/11/bits/hashtable.h:
-
-/usr/include/glm/ext/vector_bool1_precision.hpp:
-
 /usr/include/glm/ext/vector_bool1.hpp:
 
 /usr/include/glm/gtc/epsilon.inl:
@@ -1392,23 +1395,11 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/c++/11/bits/ostream.tcc:
 
-/usr/include/x86_64-linux-gnu/c++/11/bits/opt_random.h:
-
-/usr/include/c++/11/bits/codecvt.h:
-
-/usr/include/c++/11/bits/enable_special_members.h:
-
-/usr/include/c++/11/bits/basic_ios.tcc:
-
 /usr/include/x86_64-linux-gnu/c++/11/bits/ctype_base.h:
 
 /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h:
 
 /usr/include/c++/11/cwctype:
-
-/usr/include/c++/11/bits/uniform_int_dist.h:
-
-/usr/include/c++/11/bits/basic_ios.h:
 
 /usr/include/string.h:
 
@@ -1427,10 +1418,6 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 /usr/include/asm-generic/errno-base.h:
 
 /usr/include/x86_64-linux-gnu/asm/errno.h:
-
-/usr/include/c++/11/functional:
-
-/usr/include/linux/errno.h:
 
 /usr/include/x86_64-linux-gnu/bits/errno.h:
 
@@ -1459,8 +1446,6 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 /usr/include/c++/11/bits/ostream_insert.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
-
-../include/algorithm/astar.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h:
 
@@ -1516,13 +1501,7 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/c++/11/exception:
 
-/usr/include/c++/11/unordered_set:
-
 /usr/include/x86_64-linux-gnu/bits/types/FILE.h:
-
-/usr/include/c++/11/typeinfo:
-
-/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
 
@@ -1532,12 +1511,6 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/c++/11/bits/stringfwd.h:
 
-/usr/include/c++/11/utility:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/error_constants.h:
-
-/usr/include/c++/11/ios:
-
 /usr/include/c++/11/ostream:
 
 /usr/include/glm/ext/vector_relational.inl:
@@ -1545,6 +1518,56 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 ../main.cpp:
 
 ../include/shapes/sphere.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/opt_random.h:
+
+/usr/include/c++/11/bits/codecvt.h:
+
+/usr/include/c++/11/bits/basic_ios.tcc:
+
+/usr/include/c++/11/bits/enable_special_members.h:
+
+/usr/include/c++/11/bits/hashtable_policy.h:
+
+/usr/include/glm/ext/vector_bool1_precision.hpp:
+
+/usr/include/c++/11/bits/hashtable.h:
+
+/usr/include/c++/11/unordered_map:
+
+/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
+
+/usr/include/c++/11/typeinfo:
+
+/usr/include/c++/11/bits/refwrap.h:
+
+/usr/include/c++/11/bits/invoke.h:
+
+/usr/include/c++/11/bits/uses_allocator.h:
+
+/usr/include/c++/11/tuple:
+
+/usr/include/linux/errno.h:
+
+/usr/include/c++/11/functional:
+
+/usr/include/c++/11/bits/basic_ios.h:
+
+/usr/include/c++/11/bits/uniform_int_dist.h:
+
+/usr/include/c++/11/bits/std_function.h:
+
+/usr/include/c++/11/bits/stl_tempbuf.h:
+
+/usr/include/c++/11/bits/stl_algo.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/error_constants.h:
+
+/usr/include/c++/11/ios:
+
+/usr/include/c++/11/utility:
+
+/usr/include/c++/11/algorithm:
 
 /usr/include/c++/11/bits/functional_hash.h:
 
@@ -1622,9 +1645,9 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/c++/11/tr1/hypergeometric.tcc:
 
-/usr/include/c++/11/pstl/glue_algorithm_defs.h:
-
 /usr/include/c++/11/stdexcept:
+
+/usr/include/c++/11/pstl/glue_algorithm_defs.h:
 
 /usr/include/glm/ext/matrix_float3x2_precision.hpp:
 
@@ -1886,9 +1909,9 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/glm/ext/vector_float4.hpp:
 
-/usr/include/c++/11/bits/stl_heap.h:
-
 /usr/include/glm/ext/vector_double1.hpp:
+
+/usr/include/c++/11/bits/stl_heap.h:
 
 /usr/include/c++/11/bits/std_abs.h:
 
@@ -2030,9 +2053,9 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/glm/ext/vector_int3_sized.hpp:
 
-/usr/include/c++/11/bits/algorithmfwd.h:
-
 /usr/include/c++/11/pstl/execution_defs.h:
+
+/usr/include/c++/11/bits/algorithmfwd.h:
 
 /usr/include/glm/ext/vector_uint3_sized.hpp:
 
@@ -2055,8 +2078,6 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 /usr/include/glm/ext/vector_double4_precision.hpp:
 
 /usr/include/glm/ext/vector_int4.hpp:
-
-/usr/include/c++/11/bits/unordered_set.h:
 
 /usr/include/glm/ext/matrix_float2x4_precision.hpp:
 
@@ -2206,9 +2227,9 @@ CMakeFiles/boids.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/glm/detail/func_exponential.inl:
 
-/usr/include/c++/11/bits/node_handle.h:
-
 /usr/include/c++/11/iostream:
+
+/usr/include/c++/11/bits/node_handle.h:
 
 /usr/include/x86_64-linux-gnu/bits/fp-fast.h:
 

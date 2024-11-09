@@ -23,41 +23,6 @@
 
 std::vector<glm::vec3> ray_points;
 
-std::vector<glm::vec3> directions = {
-        glm::vec3(1.0f, 0.0f, 0.0f),  // Right
-        glm::vec3(-1.0f, 0.0f, 0.0f), // Left
-        glm::vec3(0.0f, 1.0f, 0.0f),  // Up
-        glm::vec3(0.0f, -1.0f, 0.0f), // Down
-        glm::vec3(0.0f, 0.0f, 1.0f),  // Forward
-        glm::vec3(0.0f, 0.0f, -1.0f), // Backward
-
-        // Diagonal directions
-        glm::vec3(1.0f, 1.0f, 0.0f),  // Right-Up
-        glm::vec3(1.0f, -1.0f, 0.0f), // Right-Down
-        glm::vec3(-1.0f, 1.0f, 0.0f), // Left-Up
-        glm::vec3(-1.0f, -1.0f, 0.0f),// Left-Down
-
-        glm::vec3(1.0f, 0.0f, 1.0f),  // Right-Forward
-        glm::vec3(1.0f, 0.0f, -1.0f), // Right-Backward
-        glm::vec3(-1.0f, 0.0f, 1.0f), // Left-Forward
-        glm::vec3(-1.0f, 0.0f, -1.0f),// Left-Backward
-
-        glm::vec3(0.0f, 1.0f, 1.0f),  // Up-Forward
-        glm::vec3(0.0f, 1.0f, -1.0f), // Up-Backward
-        glm::vec3(0.0f, -1.0f, 1.0f), // Down-Forward
-        glm::vec3(0.0f, -1.0f, -1.0f),// Down-Backward
-
-        // 3D diagonals (combinations of X, Y, and Z)
-        glm::vec3(1.0f, 1.0f, 1.0f),  // Right-Up-Forward
-        glm::vec3(1.0f, 1.0f, -1.0f), // Right-Up-Backward
-        glm::vec3(1.0f, -1.0f, 1.0f), // Right-Down-Forward
-        glm::vec3(1.0f, -1.0f, -1.0f),// Right-Down-Backward
-
-        glm::vec3(-1.0f, 1.0f, 1.0f), // Left-Up-Forward
-        glm::vec3(-1.0f, 1.0f, -1.0f),// Left-Up-Backward
-        glm::vec3(-1.0f, -1.0f, 1.0f),// Left-Down-Forward
-        glm::vec3(-1.0f, -1.0f, -1.0f)// Left-Down-Backward
-    };
 
 
 

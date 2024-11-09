@@ -17,7 +17,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#include "algorithm/astar.h"
+
 
 
 glm::vec3 getRandomPointOutsideBoxes(const std::vector<Box>& boxes, float maxPosition, float minDistance = 0.5f) {
@@ -83,6 +83,14 @@ std::vector<Box> generateRandomBoxes(int numBoxes, float maxSize, float maxPosit
     return boxes;
 }
 
+std::vector<Boid> generateRandomBoids(int count, std::vector<Box> boxes){
+    std::vector<Boid> boids;
+    for (int i = 0; i < count; ++i) {
+        boids.push_back(Boid(0.1f, getRandomPointOutsideBoxes(boxes, 8, 0)));
+    }
+    return boids;
+}
+
 
 int main() {
     std::optional<GLFWwindow*> opt_window = init_scene();
@@ -95,15 +103,16 @@ int main() {
 
     glm::vec3 lightPos  = glm::vec3(0.0f, 0.0f,  0.0f);
 
-    std::vector<Box> boxes = generateRandomBoxes(10,2,5);
+    std::vector<Box> boxes = generateRandomBoxes(100,2,5);
 
-    glm::vec3 boid_start = getRandomPointOutsideBoxes(boxes, 5);
-    cameraPos = boid_start + glm::vec3(0.0f,0.0f,1.0f);
     glm::vec3 goal_pos = getRandomPointOutsideBoxes(boxes, 5);
-    Boid boid(0.1f, boid_start);
+
+    int startingBoids = 100;
+    std::vector<Boid> boids = generateRandomBoids(startingBoids, boxes);
     Sphere goal(0.1f, goal_pos);
     goal_pos = glm::vec3(goal.getX(), goal.getY(), goal.getZ());
 
+    cameraPos = boids[0].getPos() + glm::vec3(0.0f,0.0f,1.0f);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -145,45 +154,25 @@ int main() {
         glLoadMatrixf(glm::value_ptr(view));
 
 
-        boid.draw();
-
         lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
         for(auto box : boxes){
           box.draw();
         }
 
-        lightingShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
-
-        ray_points.clear();
-        for(auto dir : directions){
-          glm::vec3 rayPosition = boid.getPos();
-
-          float stepSize = 0.0001f;
-          float maxDistance = 0.01f;
-          for (float distance = 0.0f; distance <= maxDistance; distance += stepSize) {
-              rayPosition += dir;
-
-              // Check for collision with any box
-              auto collisionBox = std::find_if(boxes.begin(), boxes.end(), [&](const Box& box) {
-                  return box.contains(rayPosition);
-              });
-
-              // If a collision is found, record the point and stop this ray
-              if (collisionBox != boxes.end()) {
-                  ray_points.push_back(rayPosition);
-                  break;
-              }
+        lightingShader.setVec3("objectColor", 0.0f, 0.8f, 1.0f);
+        for(int i = 0; i < boids.size(); i++){
+          if(!boids[i].act(goal_pos, boxes)){
+            std::cout << "Alert: boid crashed!!" << std::endl;
+            boids.erase(boids.begin() + i);
+            std::cout << "Boids remaining: " << std::to_string(boids.size()) << std::endl;
           }
+          boids[i].draw();
         }
 
-        glm::vec3 new_direction = glm::normalize(goal_pos - boid.getPos());
-        boid.applyForce(new_direction, 1.0f);
-        boid.applyForce(-new_direction, 2.0f / glm::distance(goal_pos, boid.getPos()));
-        boid.updatePos();
+        lightingShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
 
         goal.draw();
 
-        lightPos = glm::vec3(boid.getX(), boid.getY() + 0.3f, boid.getZ());
 
 
         glfwSwapBuffers(window);
