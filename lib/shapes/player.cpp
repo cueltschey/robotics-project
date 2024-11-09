@@ -1,15 +1,14 @@
-#include "shapes/boid.h"
+#include "shapes/player.h"
 #include <algorithm>
 
-Boid::Boid(float size, glm::vec3 start_pos)
+Player::Player(float size, glm::vec3 start_pos)
     : size(size), position(start_pos), direction(0.0f,0.0f,0.0f) {
 
     modelMatrix = glm::mat4(1.0f);
-    directions = directions_from_view_angle(360.0f);
     buildVertices();
 }
 
-glm::vec3 Boid::rotateVertex(const glm::vec3& vertex, const glm::vec3& direction) {
+glm::vec3 Player::rotateVertex(const glm::vec3& vertex, const glm::vec3& direction) {
     // If the direction is valid (non-zero)
     if (glm::length(direction) > 0.0f) {
         glm::vec3 forward = glm::normalize(direction);  // Normalize the direction vector
@@ -44,7 +43,7 @@ glm::vec3 Boid::rotateVertex(const glm::vec3& vertex, const glm::vec3& direction
     return vertex;
 }
 
-void Boid::buildVertices() {
+void Player::buildVertices() {
     float halfSize = size / 2.0f;
 
     // Define the base vertices (before rotation)
@@ -101,34 +100,8 @@ void Boid::buildVertices() {
 }
 
 
-bool Boid::act(glm::vec3 goal_pos, std::vector<Box> obstacles) {
-    auto collisionBox = std::find_if(obstacles.begin(), obstacles.end(), [&](const Box& box) {
-        return box.contains(position);
-    });
-    if(collisionBox != obstacles.end()){
-      return false;
-    }
-    glm::vec3 new_direction = glm::normalize(goal_pos - position);
-    applyForce(new_direction, goalAttraction);
-    avoidObstacles(obstacles);
-    position += direction * speed;
-    direction *= 0.71f;
-    buildVertices();
-    return true;
-}
 
-void Boid::applyForce(glm::vec3 force_direction, float strength) {
-    glm::vec3 normalized_force = glm::normalize(force_direction);
-    glm::vec3 force = normalized_force * strength;
-    direction += force * forceApplicationCoefficient;
-    direction = glm::normalize(direction);
-
-    float force_magnitude = glm::length(force);
-    speed += force_magnitude * speedIncreaseCoefficient;
-    speed = glm::clamp(speed, 0.0f, 1.0f);
-}
-
-void Boid::draw() const {
+void Player::draw() const {
 
     glBindVertexArray(VAO);
 
@@ -137,75 +110,21 @@ void Boid::draw() const {
     glBindVertexArray(0);
 }
 
+void Player::updatePos(glm::vec3 nextPoint) {
+    direction = nextPoint - position;
+    float distance = glm::length(direction);
+    
+    // Normalize the direction only if distance is greater than a small threshold to avoid NaNs
+    if (distance > 0.001f) {
+        glm::vec3 normalizedDirection = direction / distance;
 
-std::vector<glm::vec3> Boid::directions_from_view_angle(float angle){
-    std::vector<glm::vec3> directions = {
-        glm::vec3(1.0f, 0.0f, 0.0f),  // Right
-        glm::vec3(-1.0f, 0.0f, 0.0f), // Left
-        glm::vec3(0.0f, 1.0f, 0.0f),  // Up
-        glm::vec3(0.0f, -1.0f, 0.0f), // Down
-        glm::vec3(0.0f, 0.0f, 1.0f),  // Forward
-        glm::vec3(0.0f, 0.0f, -1.0f), // Backward
-
-        // Diagonal directions
-        glm::vec3(1.0f, 1.0f, 0.0f),  // Right-Up
-        glm::vec3(1.0f, -1.0f, 0.0f), // Right-Down
-        glm::vec3(-1.0f, 1.0f, 0.0f), // Left-Up
-        glm::vec3(-1.0f, -1.0f, 0.0f),// Left-Down
-
-        glm::vec3(1.0f, 0.0f, 1.0f),  // Right-Forward
-        glm::vec3(1.0f, 0.0f, -1.0f), // Right-Backward
-        glm::vec3(-1.0f, 0.0f, 1.0f), // Left-Forward
-        glm::vec3(-1.0f, 0.0f, -1.0f),// Left-Backward
-
-        glm::vec3(0.0f, 1.0f, 1.0f),  // Up-Forward
-        glm::vec3(0.0f, 1.0f, -1.0f), // Up-Backward
-        glm::vec3(0.0f, -1.0f, 1.0f), // Down-Forward
-        glm::vec3(0.0f, -1.0f, -1.0f),// Down-Backward
-
-        // 3D diagonals (combinations of X, Y, and Z)
-        glm::vec3(1.0f, 1.0f, 1.0f),  // Right-Up-Forward
-        glm::vec3(1.0f, 1.0f, -1.0f), // Right-Up-Backward
-        glm::vec3(1.0f, -1.0f, 1.0f), // Right-Down-Forward
-        glm::vec3(1.0f, -1.0f, -1.0f),// Right-Down-Backward
-
-        glm::vec3(-1.0f, 1.0f, 1.0f), // Left-Up-Forward
-        glm::vec3(-1.0f, 1.0f, -1.0f),// Left-Up-Backward
-        glm::vec3(-1.0f, -1.0f, 1.0f),// Left-Down-Forward
-        glm::vec3(-1.0f, -1.0f, -1.0f)// Left-Down-Backward
-    };
-    std::vector<glm::vec3> kept_dirs;
-
-    // Forward direction
-    glm::vec3 forward = glm::vec3(0.0f, 0.0f, 1.0f);
-
-    float cos120 = std::cos(glm::radians(angle));
-
-    for (auto& direction : directions) {
-        float dotProduct = glm::dot(glm::normalize(forward), glm::normalize(direction));
-        if (!dotProduct < cos120) {
-            kept_dirs.push_back(direction);
-        }
+        // Move by the lesser of speed or remaining distance to avoid overshooting
+        position += normalizedDirection * std::min(speed, distance);
     }
-    return kept_dirs;
+
+    buildVertices();
 }
 
-void Boid::avoidObstacles(std::vector<Box> boxes){
-  for(auto dir : directions){
-    glm::vec3 rayPosition = position;
-
-    for (float distance = 0.0f; distance <= rayMaxLength; distance += rayStepSize) {
-        rayPosition += dir;
-
-        auto collisionBox = std::find_if(boxes.begin(), boxes.end(), [&](const Box& box) {
-            return box.contains(rayPosition);
-        });
-
-        if (collisionBox != boxes.end()) {
-            applyForce(- glm::normalize(rayPosition - position) 
-                ,obstacleRepelForce / (glm::distance(rayPosition, position) * obstacleRepelDecay));
-            break;
-        }
-    }
-  }
+void Player::shoot(std::vector<Boid> boids){
+    
 }

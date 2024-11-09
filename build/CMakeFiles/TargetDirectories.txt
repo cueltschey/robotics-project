@@ -1,3 +1,0 @@
-/home/ntia/robotics-project/build/CMakeFiles/boids.dir
-/home/ntia/robotics-project/build/CMakeFiles/edit_cache.dir
-/home/ntia/robotics-project/build/CMakeFiles/rebuild_cache.dir

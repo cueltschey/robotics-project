@@ -1,3 +1,6 @@
+#ifndef BOID_H
+#define BOID_H
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
@@ -20,8 +23,8 @@ private:
     float rayStepSize = 0.0001f;
     float rayMaxLength = 0.001f;
 
-    float forceApplicationCoefficient = 0.85f;
-    float speedIncreaseCoefficient = 0.0001f;
+    float forceApplicationCoefficient = 0.75f;
+    float speedIncreaseCoefficient = 0.00003f;
 
     float obstacleRepelForce = 7.0f;
     float obstacleRepelDecay = 8.0f;
@@ -43,3 +46,4 @@ private:
     GLuint VAO, VBO, EBO;
 };
 
+#endif
