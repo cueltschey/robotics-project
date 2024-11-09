@@ -107,12 +107,12 @@ int main() {
 
     glm::vec3 goal_pos = getRandomPointOutsideBoxes(boxes, 5);
 
-    int startingBoids = 100;
+    int startingBoids = 200;
     std::vector<Boid> boids = generateRandomBoids(startingBoids, boxes);
     Sphere goal(0.1f, goal_pos);
     goal_pos = glm::vec3(goal.getX(), goal.getY(), goal.getZ());
 
-    cameraPos = boids[0].getPos() + glm::vec3(0.0f,0.0f,1.0f);
+    cameraPos = goal_pos + glm::vec3(0.0f,0.0f,3.0f);
 
     glEnable(GL_DEPTH_TEST);
 

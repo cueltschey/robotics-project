@@ -23,6 +23,11 @@ private:
     float forceApplicationCoefficient = 0.85f;
     float speedIncreaseCoefficient = 0.0001f;
 
+    float obstacleRepelForce = 7.0f;
+    float obstacleRepelDecay = 8.0f;
+
+    float goalAttraction = 1.0f;
+
     void buildVertices();
     void applyForce(glm::vec3 force_direction, float strength);
     glm::vec3 rotateVertex(const glm::vec3& vertex, const glm::vec3& direction);
