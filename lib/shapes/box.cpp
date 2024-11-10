@@ -3,6 +3,11 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <cmath>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
+
 
 Box::Box(float depth_,
     float width_,
@@ -24,6 +29,69 @@ void Box::setPosition(float xPos, float yPos, float zPos) {
     rebuildVertices();
 }
 
+void Box::buildVertices() {
+    const std::string modelPath = "../assets/squid.obj";
+    vertices.clear();
+    indices.clear();
+
+    // Initialize Assimp importer
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(modelPath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+    
+    if (!scene || !scene->mRootNode || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) {
+        std::cerr << "Error loading model: " << importer.GetErrorString() << std::endl;
+        return;
+    }
+
+    // Process the first mesh in the scene
+    aiMesh* mesh = scene->mMeshes[0];
+    
+    // Extract vertices and normals
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+        // Positions
+        vertices.push_back(mesh->mVertices[i].x);
+        vertices.push_back(mesh->mVertices[i].y);
+        vertices.push_back(mesh->mVertices[i].z);
+        
+        // Normals
+        vertices.push_back(mesh->mNormals[i].x);
+        vertices.push_back(mesh->mNormals[i].y);
+        vertices.push_back(mesh->mNormals[i].z);
+    }
+
+    // Extract indices
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+        aiFace face = mesh->mFaces[i];
+        for (unsigned int j = 0; j < face.mNumIndices; j++) {
+            indices.push_back(face.mIndices[j]);
+        }
+    }
+
+    // OpenGL setup
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+
+    // Positions attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+
+    // Normals attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+/*
 void Box::buildVertices() {
     vertices.clear();
     indices.clear();
@@ -99,6 +167,7 @@ void Box::buildVertices() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
+*/
 
 void Box::rebuildVertices() {
     buildVertices(); // Rebuild the vertices with the new position and color

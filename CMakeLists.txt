@@ -9,6 +9,8 @@ find_package(OpenGL REQUIRED)
 find_package(glm REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(assimp REQUIRED)
+
 
 find_library(SDL_MIXER_LIBRARY
   NAMES SDL2_mixer
@@ -33,5 +35,5 @@ include_directories(${OPENGL_INCLUDE_DIR} ${GLM_INCLUDE_DIRS} /usr/include/GLFW 
 file(GLOB LIB_SRC lib/shapes/*.cpp)
 include_directories(include)
 add_executable(boids main.cpp ${LIB_SRC})
-target_link_libraries(boids ${OPENGL_gl_LIBRARY} glfw glm::glm GLEW SDL2 SDL2_mixer)
+target_link_libraries(boids ${OPENGL_gl_LIBRARY} glfw glm::glm GLEW SDL2 SDL2_mixer assimp)
 

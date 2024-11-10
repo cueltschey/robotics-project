@@ -21,6 +21,7 @@
 #include <thread>
 #include <chrono>
 
+
 #include "shapes/sphere.h"
 #include "shapes/box.h"
 #include "shapes/boid.h"
@@ -103,12 +104,12 @@ int main() {
     glm::vec3 interpolatedPos = glm::mix(player.getPos(), relativePlayerPos, 0.1f);  // Adjust 0.1f for smoother transitions
     player.updatePos(relativePlayerPos);
 
-    int worldSize = 100;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(10000,1,worldSize);
+    int worldSize = 20;
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(1,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
-    generateRandomBoids(boid_map, 100, worldSize, box_map, redBoidParams);
-    generateRandomBoids(boid_map, 100, worldSize, box_map, greenBoidParams);
-    generateRandomBoids(boid_map, 100, worldSize, box_map, blueBoidParams);
+    generateRandomBoids(boid_map, 1, worldSize, box_map, redBoidParams);
+    generateRandomBoids(boid_map, 1, worldSize, box_map, greenBoidParams);
+    generateRandomBoids(boid_map, 1, worldSize, box_map, blueBoidParams);
 
     std::vector<Bullet> bullets;
     GLuint boidTexture = loadTexture("../assets/boid.jpg");
