@@ -7,10 +7,10 @@
 
 class Sphere {
 public:
-    Sphere(float radius, glm::vec3 start_pos);
+    Sphere(float radius, glm::vec3 start_pos, float speed_);
     void draw() const;
     void updatePos(glm::vec3 next_pos);
-    void setPosition(float xPos, float yPos, float zPos);
+    void setPosition(glm::vec3 pos);
     float getX() const { return x; }
     float getY() const { return y; }
     float getZ() const { return z; }
@@ -29,7 +29,7 @@ private:
     float x;
     float y;
     float z;
-    float speed = 0.01f;
+    float speed;
 };
 
 #endif // SPHERE_H

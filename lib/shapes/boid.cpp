@@ -1,8 +1,16 @@
 #include "shapes/boid.h"
 #include <algorithm>
 
-Boid::Boid(float size, glm::vec3 start_pos)
-    : size(size), position(start_pos), direction(0.0f,0.0f,0.0f) {
+Boid::Boid(float size, glm::vec3 start_pos, const BoidParams& params)
+    : size(size), position(start_pos), direction(0.0f, 0.0f, 0.0f),
+      boidR(params.boidR), boidG(params.boidG), boidB(params.boidB),
+      trailR(params.trailR), trailG(params.trailG), trailB(params.trailB),
+      rayStepSize(params.rayStepSize), rayMaxLength(params.rayMaxLength),
+      forceApplicationCoefficient(params.forceApplicationCoefficient),
+      speedIncreaseCoefficient(params.speedIncreaseCoefficient),
+      obstacleRepelForce(params.obstacleRepelForce),
+      obstacleRepelDecay(params.obstacleRepelDecay),
+      goalAttraction(params.goalAttraction) {
 
     modelMatrix = glm::mat4(1.0f);
     directions = directions_from_view_angle(360.0f);
@@ -100,8 +108,17 @@ void Boid::buildVertices() {
     glBindVertexArray(0);
 }
 
-
 bool Boid::act(glm::vec3 goal_pos, std::vector<Box> obstacles) {
+    if(trail.size() >= 10){
+      trail.erase(trail.begin());
+    }
+    if(frame % 4 == 0){
+      trail.push_back(Sphere(0.01f, position, 0.0f));
+    }
+    frame++;
+    if (dead) {
+      return false;
+    }
     auto collisionBox = std::find_if(obstacles.begin(), obstacles.end(), [&](const Box& box) {
         return box.contains(position);
     });
@@ -125,16 +142,23 @@ void Boid::applyForce(glm::vec3 force_direction, float strength) {
 
     float force_magnitude = glm::length(force);
     speed += force_magnitude * speedIncreaseCoefficient;
-    speed = glm::clamp(speed, 0.0f, 1.0f);
+    speed = glm::clamp(speed, 0.0f, maxBoidSpeed);
 }
 
-void Boid::draw() const {
+void Boid::draw(Shader& shader) const {
+    shader.setVec3("objectColor", boidR, boidG, boidB);
+
 
     glBindVertexArray(VAO);
 
     // Apply the model matrix to the shader program
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); // Draw using indices
     glBindVertexArray(0);
+
+    shader.setVec3("objectColor", trailR, trailG, trailB);
+    for(Sphere s : trail){
+      s.draw();
+    }
 }
 
 

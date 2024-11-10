@@ -9,21 +9,25 @@
 
 #include "shapes/box.h"
 #include "shapes/boid.h"
+#include "utils/m_shader.h"
 
 class Player {
 public:
     Player(float size, glm::vec3 start_pos);
 
-    void draw() const;
+    void draw(Shader& shader) const;
     glm::vec3 getPos() const { return position; };
     void updatePos(glm::vec3 nextPoint);
-    void shoot(std::vector<Boid> boids);
+    void shoot();
+    void shoot(std::vector<Boid>& boids, glm::vec3 cameraDir);
 
 private:
     void buildVertices();
     glm::vec3 rotateVertex(const glm::vec3& vertex, const glm::vec3& direction);
 
-    float speed = 1.5f;
+    mutable std::vector<Sphere> trail;
+
+    float speed = 5.5f;
     float size;
     glm::vec3 position;
     glm::mat4 modelMatrix;
@@ -32,6 +36,7 @@ private:
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
     GLuint VAO, VBO, EBO;
+
 };
 
 #endif

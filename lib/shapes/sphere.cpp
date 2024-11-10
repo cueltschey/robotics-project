@@ -4,10 +4,9 @@
 #include <vector>
 #include <cmath>
 
-Sphere::Sphere(float radius, glm::vec3 start_pos)
-    : radius(radius), x(start_pos[0]), y(start_pos[1]), z(start_pos[2]) {
+Sphere::Sphere(float radius, glm::vec3 start_pos, float speed_)
+    : radius(radius), x(start_pos[0]), y(start_pos[1]), z(start_pos[2]), speed(speed_) {
     
-    // Calculate sector and stack counts based on radius, with a minimum count
     sectorCount = std::max(18, static_cast<int>(radius * 10)); // Higher for larger radii
     stackCount = std::max(9, static_cast<int>(radius * 5));    // Proportionally lower than sectors
 
@@ -27,11 +26,8 @@ void Sphere::updatePos(glm::vec3 next_pos) {
     rebuildVertices();
 }
 
-void Sphere::setPosition(float xPos, float yPos, float zPos) {
-    x = xPos;
-    y = yPos;
-    z = zPos;
-    // Rebuild the vertices to reflect the new position
+void Sphere::setPosition(glm::vec3 pos) {
+    x = pos.x; y = pos.y; z = pos.z;
     rebuildVertices();
 }
 

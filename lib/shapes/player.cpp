@@ -1,5 +1,6 @@
 #include "shapes/player.h"
 #include <algorithm>
+#include "utils/m_shader.h"
 
 Player::Player(float size, glm::vec3 start_pos)
     : size(size), position(start_pos), direction(0.0f,0.0f,0.0f) {
@@ -101,13 +102,23 @@ void Player::buildVertices() {
 
 
 
-void Player::draw() const {
+void Player::draw(Shader& shader) const {
+    if(trail.size() >= 40){
+      trail.erase(trail.begin());
+    }
+    trail.push_back(Sphere(0.01f, position, 0.0f));
 
     glBindVertexArray(VAO);
 
     // Apply the model matrix to the shader program
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); // Draw using indices
     glBindVertexArray(0);
+
+    shader.use();
+    shader.setVec3("objectColor", glm::vec3(1.0f,1.0f,0.0f));
+    for(Sphere s : trail){
+      s.draw();
+    }
 }
 
 void Player::updatePos(glm::vec3 nextPoint) {
@@ -125,6 +136,38 @@ void Player::updatePos(glm::vec3 nextPoint) {
     buildVertices();
 }
 
-void Player::shoot(std::vector<Boid> boids){
-    
+void Player::shoot(std::vector<Boid>& boids, glm::vec3 cameraDir) {
+
+  float maxDistance = 100.0f;  // Max distance for the ray
+  float threshold = 0.1f;      // Threshold distance for boid hit
+                               //
+  glEnable(GL_LINES);
+
+
+        // Disable GL_LINES after drawing the line
+
+  for (Boid& boid : boids) {
+      glm::vec3 boidPos = boid.getPos(); // Boid's position
+
+      glm::vec3 toBoid = boidPos - position;
+
+      float t = glm::dot(toBoid, cameraDir); // t is the scalar projection of the vector toBoid on the ray direction
+
+      // Check if the boid is in front of the player and within a certain distance
+      if (t > 0.0f && t < maxDistance) {
+          glm::vec3 closestPoint = position + t * cameraDir;
+
+          float distance = glm::length(closestPoint - boidPos);
+
+          if (distance <= threshold) {
+              glBegin(GL_LINES);
+              boid.explode();
+              glVertex3f(position.x, position.y, position.z);  // Player position (start of line)
+              glVertex3f(boidPos.x, boidPos.y, boidPos.z);        // Boid position (end of line)
+              glEnd();
+          }
+      }
+  }
+
+  glDisable(GL_LINES);
 }

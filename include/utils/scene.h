@@ -8,9 +8,170 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+#include <thread>
+
+
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
+void playSoundAsync(const char* soundFile) {
+    // Load the sound (audio file)
+    Mix_Chunk* sound = Mix_LoadWAV(soundFile);
+    if (!sound) {
+        std::cerr << "Failed to load sound: " << Mix_GetError() << std::endl;
+        return;
+    }
+
+    // Play the sound asynchronously (non-blocking)
+    Mix_PlayChannel(-1, sound, 0); // -1 means it will play on the first available channel
+
+    // Optionally, clean up the sound after it finishes playing
+    // Mix_FreeChunk(sound); // This would normally be called after playback ends
+}
+
+bool initSDL() {
+    // Initialize SDL
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    // Initialize SDL_mixer
+    if (Mix_Init(MIX_INIT_MP3) != MIX_INIT_MP3) {
+        std::cerr << "Mix_Init Error: " << Mix_GetError() << std::endl;
+        return false;
+    }
+
+    // Open audio device with default settings
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "Mix_OpenAudio Error: " << Mix_GetError() << std::endl;
+        return false;
+    }
+
+    std::cout << "SDL and SDL_mixer initialized successfully!" << std::endl;
+    return true;
+}
+
+glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  5.0f);  // Camera initially positioned 5 units away from the player
+glm::vec3 playerPos   = glm::vec3(0.0f, 0.0f,  0.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+glm::mat4 view;
+
+bool firstMouse = true;
+float yaw   = -90.0f;
+float pitch =  0.0f;
+float lastX =  800.0f / 2.0;
+float lastY =  600.0 / 2.0;
+float fov   =  45.0f;
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
+float cameraSpeed = 5.5f;
+float radius = 5.0f;  // Radius of orbit around the player
+
+void updateCameraPositionAroundPlayer(glm::vec3 playerPos, float radius, float yaw, float pitch, glm::vec3& cameraPos, glm::vec3& cameraFront) {
+    // Convert spherical coordinates to Cartesian coordinates for camera position
+    cameraPos.x = playerPos.x + radius * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    cameraPos.y = playerPos.y + radius * sin(glm::radians(pitch));
+    cameraPos.z = playerPos.z + radius * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+
+    // Update the camera front to look towards the player
+    cameraFront = glm::normalize(playerPos - cameraPos);
+}
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        float xpos = static_cast<float>(xposIn);
+        float ypos = static_cast<float>(yposIn);
+
+        if (firstMouse) {
+            lastX = xpos;
+            lastY = ypos;
+            firstMouse = false;
+        }
+
+        float xoffset = xpos - lastX;
+        float yoffset = lastY - ypos;  // Reversed since y-coordinates go from bottom to top
+        lastX = xpos;
+        lastY = ypos;
+
+        float sensitivity = 0.1f;  // Adjust for sensitivity
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
+
+        yaw += xoffset;  // Horizontal movement controls yaw (left-right)
+        pitch += yoffset;  // Vertical movement controls pitch (up-down)
+
+        // Limit pitch to prevent flipping
+        if (pitch > 89.0f) pitch = 89.0f;
+        if (pitch < -89.0f) pitch = -89.0f;
+    } else {
+        firstMouse = true;
+    }
+}
+
+void updateCamera(GLFWwindow* window, glm::vec3 playerPos) {
+    // Update the camera position around the player, adjusting based on yaw and pitch
+    updateCameraPositionAroundPlayer(playerPos, radius, yaw, pitch, cameraPos, cameraFront);
+}
+
+void processInput(GLFWwindow *window) {
+    float cameraSpeed = 2.5f * deltaTime;
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        playerPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        playerPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        playerPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        playerPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        playerPos += cameraSpeed * cameraUp;
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        playerPos -= cameraSpeed * cameraUp;
+}
+
+
 
 int width = 0;
 int height = 0;
+
+float skyboxVertices[] = {
+    // positions          
+    -1.0f,  1.0f, -1.0f,
+    -1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+
+    -1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f
+};
+
 
 void initializeOpenGL() {
     glewExperimental = GL_TRUE;
@@ -71,5 +232,29 @@ std::optional<GLFWwindow*> init_scene(){
     return std::optional(window);
 }
 
+GLuint loadTexture(const char* path) {
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);  // Flip texture vertically
+    unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
+    if (data) {
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        if (nrChannels == 3)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        else if (nrChannels == 4)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        stbi_image_free(data);
+    } else {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+    return textureID;
+}
 
 #endif

@@ -8,18 +8,51 @@
 #include <cmath>
 
 #include "shapes/box.h"
+#include "shapes/sphere.h"
+
+#include "utils/m_shader.h"
+
+struct BoidParams {
+    // Colors
+    float boidR, boidG, boidB;
+    float trailR, trailG, trailB;
+    
+
+    // Ray parameters
+    float rayStepSize = 0.0001f;
+    float rayMaxLength = 0.001f;
+
+    // Force coefficients
+    float forceApplicationCoefficient = 0.75f;
+    float speedIncreaseCoefficient = 0.00003f;
+
+    // Obstacle avoidance parameters
+    float obstacleRepelForce = 7.0f;
+    float obstacleRepelDecay = 8.0f;
+
+    // Goal attraction
+    float goalAttraction = 1.0f;
+    float maxBoidSpeed = 1.0f;
+};
 
 class Boid {
 public:
-    Boid(float size, glm::vec3 start_pos);
+    Boid(float size, glm::vec3 start_pos, const BoidParams& params);
 
     bool act(glm::vec3 goal_pos, std::vector<Box> obstacles);
-    void draw() const;
+    void draw(Shader& shader) const;
     glm::vec3 getPos() const { return position; };
     std::vector<glm::vec3> directions_from_view_angle(float angle);
     void avoidObstacles(std::vector<Box> boxes);
 
+    glm::mat4 getModelMatrix() const { return modelMatrix; };
+    void explode() { dead = true; };
+
 private:
+
+    float boidR, boidG, boidB;
+    float trailR, trailG, trailB;
+
     float rayStepSize = 0.0001f;
     float rayMaxLength = 0.001f;
 
@@ -31,9 +64,15 @@ private:
 
     float goalAttraction = 1.0f;
 
+    float maxBoidSpeed = 1.0f;
+
     void buildVertices();
     void applyForce(glm::vec3 force_direction, float strength);
     glm::vec3 rotateVertex(const glm::vec3& vertex, const glm::vec3& direction);
+
+    void calculateNormals(const std::vector<glm::vec3>& unrotatedVertices);
+
+    bool dead = false;
 
     float speed = 0.0f;
     float size;
@@ -41,9 +80,13 @@ private:
     glm::mat4 modelMatrix;
     glm::vec3 direction;
     std::vector<glm::vec3> directions;
+    std::vector<glm::vec3> normals;
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
     GLuint VAO, VBO, EBO;
+
+    std::vector<Sphere> trail;
+    int frame = 0;
 };
 
 #endif

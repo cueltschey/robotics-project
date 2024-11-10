@@ -10,14 +10,28 @@ find_package(glm REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 
+find_library(SDL_MIXER_LIBRARY
+  NAMES SDL2_mixer
+  HINTS
+    ENV SDLMIXERDIR
+    ENV SDLDIR
+  PATH_SUFFIXES lib
+)
+
+
+find_file(SDL2_INCLUDE_DIR NAME SDL.h HINTS SDL2)
+find_library(SDL2_LIBRARY NAME SDL2)
+
+
 # Download and build GLFW
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 
-include_directories(${OPENGL_INCLUDE_DIR} ${GLM_INCLUDE_DIRS} /usr/include/GLFW)
+include_directories(${OPENGL_INCLUDE_DIR} ${GLM_INCLUDE_DIRS} /usr/include/GLFW /usr/include/stb/)
+
 file(GLOB LIB_SRC lib/shapes/*.cpp)
 include_directories(include)
 add_executable(boids main.cpp ${LIB_SRC})
-target_link_libraries(boids ${OPENGL_gl_LIBRARY} glfw glm::glm GLEW)
+target_link_libraries(boids ${OPENGL_gl_LIBRARY} glfw glm::glm GLEW SDL2 SDL2_mixer)
 
