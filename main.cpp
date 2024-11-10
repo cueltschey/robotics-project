@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <unordered_map>
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -26,44 +27,50 @@
 #include "shapes/space.h"
 #include "shapes/bullet.h"
 #include "utils/generation.h"
+#include "utils/sound.h"
+#include "algorithm/flock.h"
+
 
 // Red Boid parameters
 BoidParams redBoidParams = {
-    1.0f, 0.0f, 0.0f,   // boid color: red
-    1.0f, 0.5f, 0.5f,   // trail color: light red
-    0.0003f,            // rayStepSize
-    0.003f,             // rayMaxLength
-    0.85f,              // forceApplicationCoefficient
-    0.000005f,           // speedIncreaseCoefficient
-    9.0f,               // obstacleRepelForce
-    10.0f,               // obstacleRepelDecay
-    2.0f                // goalAttraction
+    1.0f, 0.0f, 0.0f,    // boid color: red
+    1.0f, 0.5f, 0.5f,    // trail color: light red
+    0.003f,             // rayStepSize
+    0.03f,              // rayMaxLength
+    0.85f,               // forceApplicationCoefficient
+    0.001f,              // speedIncreaseCoefficient
+    10.0f,                // obstacleRepelForce
+    3.0f,               // obstacleRepelDecay
+    1.0f,                // goalAttraction
+    0.2f                 // size
 };
 
 // Blue Boid parameters
 BoidParams blueBoidParams = {
-    0.0f, 0.0f, 1.0f,   // boid color: blue
-    0.3f, 0.3f, 1.0f,   // trail color: light blue
-    0.00025f,           // rayStepSize
-    0.0018f,            // rayMaxLength
-    0.7f,               // forceApplicationCoefficient
-    0.000005f,           // speedIncreaseCoefficient
+    0.0f, 0.0f, 1.0f,    // boid color: blue
+    0.3f, 0.3f, 1.0f,    // trail color: light blue
+    0.003f,            // rayStepSize
+    0.03f,             // rayMaxLength
+    0.7f,                // forceApplicationCoefficient
+    0.001f,              // speedIncreaseCoefficient
     10.5f,               // obstacleRepelForce
-    4.5f,               // obstacleRepelDecay
-    1.0f                // goalAttraction
+    3.5f,                // obstacleRepelDecay
+    1.0f,                // goalAttraction
+    0.1f                 // size
 };
 
 // Green Boid parameters
 BoidParams greenBoidParams = {
-    0.0f, 1.0f, 0.0f,   // boid color: green
-    0.3f, 1.0f, 0.3f,   // trail color: light green
-    0.00015f,           // rayStepSize
-    0.0015f,            // rayMaxLength
-    0.8f,               // forceApplicationCoefficient
-    0.000005f,           // speedIncreaseCoefficient
-    7.8f,               // obstacleRepelForce
-    8.2f,               // obstacleRepelDecay
-    0.7f                // goalAttraction
+    0.0f, 1.0f, 0.0f,    // boid color: green
+    0.3f, 1.0f, 0.3f,    // trail color: light green
+    0.003f,            // rayStepSize
+    0.03f,             // rayMaxLength
+    0.8f,                // forceApplicationCoefficient
+    0.001f,              // speedIncreaseCoefficient
+    10.8f,                // obstacleRepelForce
+    4.2f,                // obstacleRepelDecay
+    1.0f,                // goalAttraction
+    0.07f                // size
 };
 
 
@@ -76,11 +83,10 @@ int main() {
     GLFWwindow* window = opt_window.value();
     glm::vec3 lightPos  = glm::vec3(0.0f, 10.0f,  0.0f);
 
-    std::vector<Box> boxes = generateRandomBoxes(300,10,40);
 
-    if (!initSDL()) {
-        return -1; // Exit if SDL initialization fails
-    }
+    initMixer();
+    int lazer = loadSound("../assets/lazer.wav");
+    int explosion = loadSound("../assets/explosion.wav");
 
     //std::this_thread::sleep_for(std::chrono::seconds(3));
 
@@ -97,14 +103,14 @@ int main() {
     glm::vec3 interpolatedPos = glm::mix(player.getPos(), relativePlayerPos, 0.1f);  // Adjust 0.1f for smoother transitions
     player.updatePos(relativePlayerPos);
 
-    std::vector<Boid> boids = generateRandomBoids(5, boxes, redBoidParams);
-    std::vector<Boid> green_boids = generateRandomBoids(10, boxes, greenBoidParams);
-    std::vector<Boid> blue_boids = generateRandomBoids(20, boxes, blueBoidParams);
-    boids.insert(boids.end(), green_boids.begin(), green_boids.end());
-    boids.insert(boids.end(), blue_boids.begin(), blue_boids.end());
+    int worldSize = 100;
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(10000,1,worldSize);
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
+    generateRandomBoids(boid_map, 100, worldSize, box_map, redBoidParams);
+    generateRandomBoids(boid_map, 100, worldSize, box_map, greenBoidParams);
+    generateRandomBoids(boid_map, 100, worldSize, box_map, blueBoidParams);
 
     std::vector<Bullet> bullets;
-
     GLuint boidTexture = loadTexture("../assets/boid.jpg");
     GLuint playerTexture = loadTexture("../assets/player.jpg");
 
@@ -120,9 +126,17 @@ int main() {
 
 
 
-    while (!glfwWindowShouldClose(window)) {
+    bool game_over = false;
+    int frame = 0;
+    while (!glfwWindowShouldClose(window) && !game_over) {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        if(frame % static_cast<int>(CELL_SIZE) == 0){
+          boid_map = recalculateCells(boid_map);
+        }
+
+        frame++;
 
 
         float currentFrame = glfwGetTime();
@@ -151,26 +165,41 @@ int main() {
         brightShader.setMat4("view", view);
         brightShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
 
-        for(int i = 0; i < boids.size(); i++){
-          if(!boids[i].act(playerPos, boxes)){
-            std::cout << "Alert: boid crashed!!" << std::endl;
-            boids.erase(boids.begin() + i);
-            std::cout << "Boids remaining: " << std::to_string(boids.size()) << std::endl;
+        glm::vec3 flock_center = getCenter(boid_map);
+
+        for(auto& [cell, boids] : boid_map){
+          if(game_over)
+            break;
+
+          for (size_t i = 0; i < boids.size(); i++) {
+            if(!boids[i].act(interpolatedPos,
+                  box_map[positionToCell(boids[i].getPos())],
+                  flock_center,
+                  boid_map[positionToCell(boids[i].getPos())])){
+              std::cout << "Alert: boid crashed!!" << std::endl;
+              boids.erase(boids.begin() + i);
+            }
+            boids[i].draw(brightShader);
+            if(boids[i].contains(interpolatedPos)){
+              playSound(explosion);
+              game_over = true;
+              break;
+            }
           }
-          boids[i].draw(brightShader);
         }
 
 
         brightShader.setVec3("objectColor", 1.0f, 0.0f, 0.0f);
         for(auto& b : bullets){
           b.updatePosition(interpolatedPos);
+          b.checkCollisions(boid_map[positionToCell(b.getPos())]);
           b.draw();
         }
 
 
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS){
-          bullets.push_back(Bullet(interpolatedPos, cameraFront, 0.1f, boids));
-          playSoundAsync("../assets/lazer.mp3");
+        if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS){
+          bullets.push_back(Bullet(interpolatedPos, cameraFront, 0.3f, explosion));
+          playSound(lazer);
         }
 
 
@@ -194,11 +223,17 @@ int main() {
         lightingShader.setVec3("objectColor", 0.0f, 1.0f, 1.0f);
         lightingShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
 
-        for(auto box : boxes){
-          box.draw();
+        for (const auto& [cell, boxes] : box_map) {
+          for (const Box& box : boxes) {
+            box.draw(lightingShader);
+            if(box.contains(interpolatedPos)){
+              game_over = true;
+              break;
+            }
+          }
         }
 
-        processInput(window);
+        processInput(window, player);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

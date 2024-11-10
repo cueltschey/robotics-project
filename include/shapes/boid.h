@@ -33,17 +33,22 @@ struct BoidParams {
     // Goal attraction
     float goalAttraction = 1.0f;
     float maxBoidSpeed = 1.0f;
+    float size = 0.1f;
 };
 
 class Boid {
 public:
-    Boid(float size, glm::vec3 start_pos, const BoidParams& params);
+    Boid(glm::vec3 start_pos, const BoidParams& params);
 
-    bool act(glm::vec3 goal_pos, std::vector<Box> obstacles);
+    bool act(glm::vec3 goal_pos, std::vector<Box> obstacles, glm::vec3 flock_center, std::vector<Boid> boids);
     void draw(Shader& shader) const;
     glm::vec3 getPos() const { return position; };
     std::vector<glm::vec3> directions_from_view_angle(float angle);
-    void avoidObstacles(std::vector<Box> boxes);
+    void avoidObstacles(std::vector<Box> boxes, std::vector<Boid> boids);
+
+    void drawLine(glm::vec3 start, glm::vec3 end);
+
+    bool contains(glm::vec3 point) const;
 
     glm::mat4 getModelMatrix() const { return modelMatrix; };
     void explode() { dead = true; };
@@ -61,8 +66,11 @@ private:
 
     float obstacleRepelForce = 7.0f;
     float obstacleRepelDecay = 8.0f;
+    float boidRepelForce = 2.0f;
+    float boidRepelDecay = 15.0f;
 
     float goalAttraction = 1.0f;
+    float flockAttraction = 0.7f;
 
     float maxBoidSpeed = 1.0f;
 
@@ -75,6 +83,8 @@ private:
     bool dead = false;
 
     float speed = 0.0f;
+
+    int trailLength = 5;
     float size;
     glm::vec3 position;
     glm::mat4 modelMatrix;

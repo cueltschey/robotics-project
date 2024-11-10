@@ -4,8 +4,16 @@
 #include <vector>
 #include <cmath>
 
-Box::Box(float depth_, float width_, float height_, float xPos, float yPos, float zPos)
-    : depth(depth_), width(width_), height(height_), x(xPos), y(yPos), z(zPos) {
+Box::Box(float depth_,
+    float width_,
+    float height_,
+    float xPos,
+    float yPos,
+    float zPos,
+    float r_,
+    float g_,
+    float b_)
+    : depth(depth_), width(width_), height(height_), x(xPos), y(yPos), z(zPos), r(r_), g(g_), b(b_) {
     buildVertices();
 }
 
@@ -97,7 +105,8 @@ void Box::rebuildVertices() {
 }
 
 // This function draws the box using OpenGL.
-void Box::draw() const {
+void Box::draw(Shader& shader) const {
+    shader.setVec3("objectColor", glm::vec3(r,g,b));
     // Bind the VAO (Vertex Array Object)
     glBindVertexArray(VAO);
 

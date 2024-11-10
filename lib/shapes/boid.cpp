@@ -1,8 +1,12 @@
 #include "shapes/boid.h"
 #include <algorithm>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-Boid::Boid(float size, glm::vec3 start_pos, const BoidParams& params)
-    : size(size), position(start_pos), direction(0.0f, 0.0f, 0.0f),
+
+Boid::Boid(glm::vec3 start_pos, const BoidParams& params)
+    : size(params.size), position(start_pos), direction(0.0f, 0.0f, 0.0f),
       boidR(params.boidR), boidG(params.boidG), boidB(params.boidB),
       trailR(params.trailR), trailG(params.trailG), trailB(params.trailB),
       rayStepSize(params.rayStepSize), rayMaxLength(params.rayMaxLength),
@@ -15,6 +19,10 @@ Boid::Boid(float size, glm::vec3 start_pos, const BoidParams& params)
     modelMatrix = glm::mat4(1.0f);
     directions = directions_from_view_angle(360.0f);
     buildVertices();
+}
+
+bool Boid::contains(glm::vec3 point) const {
+  return glm::distance(point, position) < 0.1f;
 }
 
 glm::vec3 Boid::rotateVertex(const glm::vec3& vertex, const glm::vec3& direction) {
@@ -108,8 +116,8 @@ void Boid::buildVertices() {
     glBindVertexArray(0);
 }
 
-bool Boid::act(glm::vec3 goal_pos, std::vector<Box> obstacles) {
-    if(trail.size() >= 10){
+bool Boid::act(glm::vec3 goal_pos, std::vector<Box> obstacles, glm::vec3 flock_center, std::vector<Boid> boids) {
+    if(trail.size() >= trailLength){
       trail.erase(trail.begin());
     }
     if(frame % 4 == 0){
@@ -125,11 +133,15 @@ bool Boid::act(glm::vec3 goal_pos, std::vector<Box> obstacles) {
     if(collisionBox != obstacles.end()){
       return false;
     }
+
+    glm::vec3 flock_center_direction = glm::normalize(flock_center - position);
+    applyForce(flock_center_direction, flockAttraction);
+
     glm::vec3 new_direction = glm::normalize(goal_pos - position);
     applyForce(new_direction, goalAttraction);
-    avoidObstacles(obstacles);
     position += direction * speed;
-    direction *= 0.71f;
+    speed *= 0.92;
+    avoidObstacles(obstacles, boids);
     buildVertices();
     return true;
 }
@@ -214,12 +226,14 @@ std::vector<glm::vec3> Boid::directions_from_view_angle(float angle){
     return kept_dirs;
 }
 
-void Boid::avoidObstacles(std::vector<Box> boxes){
+void Boid::avoidObstacles(std::vector<Box> boxes, std::vector<Boid> boids){
+
   for(auto dir : directions){
+    glm::vec3 rotatedDir = glm::normalize(direction - dir);
     glm::vec3 rayPosition = position;
 
     for (float distance = 0.0f; distance <= rayMaxLength; distance += rayStepSize) {
-        rayPosition += dir;
+        rayPosition += rotatedDir;
 
         auto collisionBox = std::find_if(boxes.begin(), boxes.end(), [&](const Box& box) {
             return box.contains(rayPosition);
@@ -228,8 +242,25 @@ void Boid::avoidObstacles(std::vector<Box> boxes){
         if (collisionBox != boxes.end()) {
             applyForce(- glm::normalize(rayPosition - position) 
                 ,obstacleRepelForce / (glm::distance(rayPosition, position) * obstacleRepelDecay));
+            drawLine(rayPosition, position);
             break;
         }
+
+
     }
   }
+
+  for(Boid& boid : boids){
+    applyForce(- glm::normalize(boid.getPos() - position) 
+        ,boidRepelForce / (glm::distance(boid.getPos(), position) * boidRepelDecay));
+    //drawLine(position, boid.getPos());
+  }
 }
+
+void Boid::drawLine(glm::vec3 start, glm::vec3 end){
+    glBegin(GL_LINES);
+    glVertex3fv(glm::value_ptr(start));
+    glVertex3fv(glm::value_ptr(end));
+    glEnd();
+}
+

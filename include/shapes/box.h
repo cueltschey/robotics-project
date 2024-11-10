@@ -4,12 +4,21 @@
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <vector>
+#include "utils/m_shader.h"
 
 
 class Box {
 public:
-    Box(float depth_, float width_, float height_, float xPos, float yPos, float zPos);
-    void draw() const;
+    Box(float depth_,
+        float width_,
+        float height_,
+        float xPos,
+        float yPos,
+        float zPos,
+        float r_,
+        float g_,
+        float b_);
+    void draw(Shader& shader) const;
     void buildVertices();
     void setPosition(float xPos, float yPos, float zPos);
     void rebuildVertices();
@@ -58,6 +67,7 @@ private:
     float width;
     float height;
     float x, y, z;
+    float r, g, b;
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
     GLuint VAO, VBO, EBO;

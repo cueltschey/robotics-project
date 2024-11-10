@@ -11,51 +11,15 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <thread>
+#include "shapes/player.h"
 
 
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-void playSoundAsync(const char* soundFile) {
-    // Load the sound (audio file)
-    Mix_Chunk* sound = Mix_LoadWAV(soundFile);
-    if (!sound) {
-        std::cerr << "Failed to load sound: " << Mix_GetError() << std::endl;
-        return;
-    }
 
-    // Play the sound asynchronously (non-blocking)
-    Mix_PlayChannel(-1, sound, 0); // -1 means it will play on the first available channel
-
-    // Optionally, clean up the sound after it finishes playing
-    // Mix_FreeChunk(sound); // This would normally be called after playback ends
-}
-
-bool initSDL() {
-    // Initialize SDL
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
-
-    // Initialize SDL_mixer
-    if (Mix_Init(MIX_INIT_MP3) != MIX_INIT_MP3) {
-        std::cerr << "Mix_Init Error: " << Mix_GetError() << std::endl;
-        return false;
-    }
-
-    // Open audio device with default settings
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        std::cerr << "Mix_OpenAudio Error: " << Mix_GetError() << std::endl;
-        return false;
-    }
-
-    std::cout << "SDL and SDL_mixer initialized successfully!" << std::endl;
-    return true;
-}
-
-glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  5.0f);  // Camera initially positioned 5 units away from the player
+glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  5.0f);
 glm::vec3 playerPos   = glm::vec3(0.0f, 0.0f,  0.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
@@ -119,8 +83,12 @@ void updateCamera(GLFWwindow* window, glm::vec3 playerPos) {
     updateCameraPositionAroundPlayer(playerPos, radius, yaw, pitch, cameraPos, cameraFront);
 }
 
-void processInput(GLFWwindow *window) {
+void processInput(GLFWwindow *window, Player& player) {
     float cameraSpeed = 2.5f * deltaTime;
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        cameraSpeed = 10.5f * deltaTime;
+
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         playerPos += cameraSpeed * cameraFront;
@@ -134,6 +102,30 @@ void processInput(GLFWwindow *window) {
         playerPos += cameraSpeed * cameraUp;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         playerPos -= cameraSpeed * cameraUp;
+
+    float sensitivity = 2.5f;
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        yaw -= sensitivity;
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        yaw += sensitivity;
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        pitch += sensitivity;
+        if (pitch > 89.0f) pitch = 89.0f;  // Limit pitch to prevent flipping
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        pitch -= sensitivity;
+        if (pitch < -89.0f) pitch = -89.0f;  // Limit pitch to prevent flipping
+    }
+
+    float zoom_rate = 0.2f;
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        radius += zoom_rate;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        radius -= zoom_rate;
 }
 
 

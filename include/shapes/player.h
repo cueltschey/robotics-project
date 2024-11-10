@@ -20,6 +20,7 @@ public:
     void updatePos(glm::vec3 nextPoint);
     void shoot();
     void shoot(std::vector<Boid>& boids, glm::vec3 cameraDir);
+    void setSpeed(float s) {speed = s; };
 
 private:
     void buildVertices();
