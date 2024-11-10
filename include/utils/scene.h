@@ -19,8 +19,8 @@
 #include <stb_image.h>
 
 
-glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  5.0f);
-glm::vec3 playerPos   = glm::vec3(0.0f, 0.0f,  0.0f);
+glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  0.0f);
+glm::vec3 playerPos   = glm::vec3(0.0f, 0.0f,  40.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 glm::mat4 view;

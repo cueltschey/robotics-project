@@ -1,98 +1,53 @@
 #include "shapes/space.h"
 #include <iostream>
+#include <glm/glm.hpp>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
 
-Space::Space(float radius, GLuint texture_)
-    : radius(radius), texture(texture_) {
-    generateSphereData(50, 50);  // 50 sectors and 50 stacks for a smooth sphere
+#include <functional>
+#include <random>
+
+
+
+
+Space::Space(float radius_, int numStars_, glm::vec3 playerPosition)
+    : radius(radius_), numStars(numStars_) {
+      createStars(playerPosition);
     }
-
-
-// Generate sphere data (vertices, normals, texture coordinates)
-void Space::generateSphereData(int sectors, int stacks) {
-    std::vector<GLfloat> vertices;
-    std::vector<GLuint> indices;
-
-    float x, y, z, xy;                       // Vertex position
-    float u, v;                               // Texture coordinates
-
-    float sectorStep = 2 * M_PI / sectors;
-    float stackStep = M_PI / stacks;
-    float sectorAngle, stackAngle;
-
-    // Generate vertices
-    for (int i = 0; i <= stacks; ++i) {
-        stackAngle = M_PI / 2 - i * stackStep;     // Starting from the top of the sphere
-        xy = radius * cosf(stackAngle);            // xy is the radius at the current stack
-        z = radius * sinf(stackAngle);             // z is the height at the current stack
-
-        // Generate the vertices for each sector in this stack
-        for (int j = 0; j <= sectors; ++j) {
-            sectorAngle = j * sectorStep;  // Angle along the stack (around the sphere)
-            x = xy * cosf(sectorAngle);    // x = xy * cos(theta)
-            y = xy * sinf(sectorAngle);    // y = xy * sin(theta)
-            u = (float)j / sectors;        // Texture coordinate u
-            v = (float)i / stacks;         // Texture coordinate v
-
-            // Push the vertex data
-            vertices.push_back(x);
-            vertices.push_back(y);
-            vertices.push_back(z);
-            vertices.push_back(u);
-            vertices.push_back(v);
-        }
-    }
-
-    // Generate indices
-    GLuint k1, k2;
-    for (int i = 0; i < stacks; ++i) {
-        k1 = i * (sectors + 1);         // Current stack
-        k2 = k1 + sectors + 1;          // Next stack
-
-        for (int j = 0; j < sectors; ++j, ++k1, ++k2) {
-            if (i != 0) {
-                indices.push_back(k1);
-                indices.push_back(k2);
-                indices.push_back(k1 + 1);
-            }
-            if (i != (stacks - 1)) {
-                indices.push_back(k1 + 1);
-                indices.push_back(k2);
-                indices.push_back(k2 + 1);
-            }
-        }
-    }
-
-    // Generate buffers and link data
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
-
-    // Vertex position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-
-    // Texture coordinates attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);  // Unbind the VAO
-}
 
 
 // Render the background sphere
 void Space::render() {
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6 * 50 * 50, GL_UNSIGNED_INT, 0);  // 6 indices per quad
-    glBindVertexArray(0);
+  for(Sphere& star : stars){
+    star.draw();
+  }
 }
 
+void Space::createStars(const glm::vec3& playerPosition){
+  for (int i = 0; i < numStars; i++) {
+    stars.push_back(Sphere(0.1f, randomStarPos(playerPosition, radius / 2, radius * 2), 0.0f));
+  }
+  std::cout << stars.size() << std::endl;
+}
+
+
+
+glm::vec3 Space::randomStarPos(const glm::vec3& playerPosition, float minDistance, float maxDistance) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> posDist(-maxDistance, maxDistance);
+
+    glm::vec3 randomPoint;
+    bool isValid;
+
+    do {
+        // Generate a random point
+        randomPoint = glm::vec3(posDist(gen), posDist(gen), posDist(gen));
+        isValid = true;
+        if(glm::distance(randomPoint, playerPosition) <= minDistance){
+          isValid = false;
+        }
+    } while (!isValid); // Repeat until a valid point is found
+    return randomPoint;
+}

@@ -23,6 +23,8 @@
 
 
 #include "shapes/sphere.h"
+#include "shapes/sun.h"
+#include "shapes/planet.h"
 #include "shapes/box.h"
 #include "shapes/boid.h"
 #include "shapes/space.h"
@@ -82,7 +84,6 @@ int main() {
       return -1;
     }
     GLFWwindow* window = opt_window.value();
-    glm::vec3 lightPos  = glm::vec3(0.0f, 10.0f,  0.0f);
 
 
     initMixer();
@@ -92,27 +93,20 @@ int main() {
     //std::this_thread::sleep_for(std::chrono::seconds(3));
 
 
-    Player player(0.15f, cameraPos + glm::vec3(0.0f, 0.0f, 3.0f));
+    Player player(0.15f, playerPos);
 
-    glm::vec3 offset(0.0f, 0.0f, 1.0f);
-
-    glm::vec3 relativePlayerPos = cameraPos +
-                                  offset.x +
-                                  offset.y * cameraUp +
-                                  offset.z;
-
-    glm::vec3 interpolatedPos = glm::mix(player.getPos(), relativePlayerPos, 0.1f);  // Adjust 0.1f for smoother transitions
-    player.updatePos(relativePlayerPos);
+    glm::vec3 interpolatedPos = glm::mix(player.getPos(), cameraPos, 0.1f);  // Adjust 0.1f for smoother transitions
+    player.updatePos(cameraPos);
 
     int worldSize = 20;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(1,1,worldSize);
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(0,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
-    generateRandomBoids(boid_map, 1, worldSize, box_map, redBoidParams);
-    generateRandomBoids(boid_map, 1, worldSize, box_map, greenBoidParams);
-    generateRandomBoids(boid_map, 1, worldSize, box_map, blueBoidParams);
+    generateRandomBoids(boid_map, 10, worldSize, box_map, redBoidParams);
+    generateRandomBoids(boid_map, 10, worldSize, box_map, greenBoidParams);
+    generateRandomBoids(boid_map, 10, worldSize, box_map, blueBoidParams);
 
     std::vector<Bullet> bullets;
-    GLuint boidTexture = loadTexture("../assets/boid.jpg");
+    ////GLuint boidTexture = loadTexture("../assets/boid.jpg");
     GLuint playerTexture = loadTexture("../assets/player.jpg");
 
 
@@ -120,7 +114,14 @@ int main() {
     Shader textureShader("../shaders/boid.vs", "../shaders/boid.fs");
     Shader brightShader("../shaders/1.colors.vs", "../shaders/1.colors.fs");
 
-    Space space(150.0f, loadTexture("../assets/space.png"));
+    Space space(200.0f, 1000, player.getPos());
+
+    Sun sun(5.0f, glm::vec3(0.0f,0.0f,0.0f), 0.0f);
+    Planet earth(2.0f, glm::vec3(10.0f,0.0f,0.0f));
+    earth.orbit(50.0f, 0.01f);
+
+    Planet moon(0.5f, glm::vec3(0.0f,0.0f,0.0f));
+    moon.orbit(10.0f, 0.1f);
 
 
     glEnable(GL_DEPTH_TEST);
@@ -149,7 +150,9 @@ int main() {
         glTranslatef(0.0f, 0.0f, -5.0f);
 
 
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 200.0f);
+        glm::mat4 projection = glm::perspective(
+            glm::radians(45.0f),
+            (float)width / (float)height, 0.1f, 800.0f);
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         glm::mat4 model = glm::mat4(1.0f);
         glLoadMatrixf(glm::value_ptr(view));
@@ -204,25 +207,30 @@ int main() {
         }
 
 
-        textureShader.use();
-        textureShader.setMat4("model", model);
-        textureShader.setMat4("view", view);
-        textureShader.setMat4("projection", projection);
+        //textureShader.use();
+        //textureShader.setMat4("model", model);
+        //textureShader.setMat4("view", view);
+        //textureShader.setMat4("projection", projection);
 
+
+        brightShader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
         space.render();
 
 
-        glBindTexture(GL_TEXTURE_2D, boidTexture);
+
         player.draw(brightShader);
+
+        brightShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
+        sun.draw();
 
         lightingShader.use();
         lightingShader.setMat4("model", model);
         lightingShader.setMat4("projection", projection);
         lightingShader.setMat4("view", view);
         lightingShader.setVec3("cameraPos", cameraPos);
-        lightingShader.setVec3("lightPos", lightPos);
         lightingShader.setVec3("objectColor", 0.0f, 1.0f, 1.0f);
-        lightingShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("lightPos", sun.getPos());
+        lightingShader.setVec3("lightColor",  1.0f, 1.0f, 0.75f);
 
         for (const auto& [cell, boxes] : box_map) {
           for (const Box& box : boxes) {
@@ -233,6 +241,12 @@ int main() {
             }
           }
         }
+
+        lightingShader.setVec3("objectColor", 0.5f, 0.5f, 0.5f);
+        earth.updatePos(sun.getPos());
+        moon.updatePos(earth.getPos());
+        earth.draw();
+        moon.draw();
 
         processInput(window, player);
         glfwSwapBuffers(window);

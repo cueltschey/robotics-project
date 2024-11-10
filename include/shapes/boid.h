@@ -91,6 +91,8 @@ private:
     glm::vec3 direction;
     std::vector<glm::vec3> directions;
     std::vector<glm::vec3> normals;
+
+
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
     GLuint VAO, VBO, EBO;

@@ -5,22 +5,24 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+#include "shapes/sphere.h"
 
 class Space {
 public:
-    GLuint texture;
-    GLuint VAO, VBO, EBO; // OpenGL objects for the sphere
-    float radius;         // Radius of the background sphere
 
     // Constructor
-    Space(float radius, GLuint texture);
+    Space(float radius_, int numStars_, glm::vec3 playerPosition);
 
     // Function to render the sphere
     void render();
 
 private:
-    // Helper function to generate sphere data (vertices, normals, texture coords)
-    void generateSphereData(int sectors, int stacks);
+
+    void createStars(const glm::vec3& playerPosition);
+    glm::vec3 randomStarPos(const glm::vec3& playerPosition, float minDistance, float maxDistance);
+    std::vector<Sphere> stars;
+    float radius;
+    int numStars;
 };
 
 #endif

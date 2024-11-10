@@ -7,6 +7,10 @@
 
 #include <functional>
 
+#include "utils/model.h"
+#include "shapes/box.h"
+#include "shapes/boid.h"
+
 namespace std {
     template<>
     struct hash<std::tuple<int, int, int>> {
@@ -114,8 +118,19 @@ void generateRandomBoids(
     std::unordered_map<std::tuple<int, int, int>, std::vector<Box>>& box_map,
     BoidParams& params){
 
+    if(count <= 0)
+      return;
+    std::vector<GLfloat> unrotatedVertices;
+    std::vector<GLuint> indices;
+    //std::string modelPath = "../assets/squid.obj";
+    float scale = params.size * 0.1f;
+    //int vertexSampleRate = 1000;
+    //loadModel(unrotatedVertices, indices, modelPath, scale, vertexSampleRate);
+    //loadBoid(unrotatedVertices, indices, scale);
+
     for (int i = 0; i < count; ++i) {
       glm::vec3 randomPosition = getRandomPointOutsideBoxes(box_map, maxDistance);
+
       result[positionToCell(randomPosition)].push_back(Boid(randomPosition, params));
     }
 }

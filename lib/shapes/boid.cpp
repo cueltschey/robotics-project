@@ -17,7 +17,7 @@ Boid::Boid(glm::vec3 start_pos, const BoidParams& params)
       goalAttraction(params.goalAttraction) {
 
     modelMatrix = glm::mat4(1.0f);
-    directions = directions_from_view_angle(360.0f);
+    directions = directions_from_view_angle(120.0f);
     buildVertices();
 }
 
@@ -117,7 +117,7 @@ void Boid::buildVertices() {
 }
 
 bool Boid::act(glm::vec3 goal_pos, std::vector<Box> obstacles, glm::vec3 flock_center, std::vector<Boid> boids) {
-    if(trail.size() >= trailLength){
+    if(trail.size() >= 10){
       trail.erase(trail.begin());
     }
     if(frame % 4 == 0){
