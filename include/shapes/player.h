@@ -21,6 +21,8 @@ public:
     void shoot();
     void shoot(std::vector<Boid>& boids, glm::vec3 cameraDir);
     void setSpeed(float s) {speed = s; };
+    void applyForce(glm::vec3 force_direction, float strength);
+
 
 private:
     void buildVertices();
@@ -29,10 +31,12 @@ private:
     mutable std::vector<Sphere> trail;
 
     float speed = 5.5f;
+    float force_speed = 0.0f;
     float size;
     glm::vec3 position;
     glm::mat4 modelMatrix;
     glm::vec3 direction;
+    glm::vec3 force_direction;
     std::vector<glm::vec3> directions;
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;

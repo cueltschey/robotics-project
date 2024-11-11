@@ -4,14 +4,6 @@
 #include <vector>
 #include <cmath>
 
-Planet::Planet(float radius, glm::vec3 start_pos)
-    : radius(radius), x(start_pos[0]), y(start_pos[1]), z(start_pos[2]) {
-    
-    sectorCount = std::max(18, static_cast<int>(radius * 10)); // Higher for larger radii
-    stackCount = std::max(9, static_cast<int>(radius * 5));    // Proportionally lower than sectors
-
-    buildVertices();
-}
 
 void Planet::orbit(float orbit_radius_, float speed_){
   speed = speed_;
@@ -32,17 +24,16 @@ void Planet::updatePos(glm::vec3 parentPos) {
       float centerZ = parentPos.z;
 
       // Assuming a 2D circular orbit in the xy-plane for simplicity
-      x = centerX + orbit_radius * cos(glm::radians(orbit_angle));
-      y = centerY + orbit_radius * sin(glm::radians(orbit_angle));
-      z = centerZ;  // If orbiting in the xy-plane, z remains the same
-
+      position.x = centerX + orbit_radius * cos(glm::radians(orbit_angle));
+      position.y = centerY + orbit_radius * sin(glm::radians(orbit_angle));
+      position.z = centerZ;  // If orbiting in the xy-plane, z remains the same
     }
     // Rebuild vertices to reflect the new position
     rebuildVertices();
 }
 
 void Planet::setPosition(glm::vec3 pos) {
-    x = pos.x; y = pos.y; z = pos.z;
+    position = pos;
     rebuildVertices();
 }
 
@@ -67,9 +58,9 @@ void Planet::buildVertices() {
             sectorAngle = j * sectorStep;               // from 0 to 2pi
 
             // Vertex positions with applied offset (x, y, z)
-            float vertexX = xy * cosf(sectorAngle) + this->x;
-            float vertexY = xy * sinf(sectorAngle) + this->y;
-            float vertexZ = localZ + this->z;
+            float vertexX = xy * cosf(sectorAngle) + position.x;
+            float vertexY = xy * sinf(sectorAngle) + position.y;
+            float vertexZ = localZ + position.z;
 
             vertices.push_back(vertexX);
             vertices.push_back(vertexY);

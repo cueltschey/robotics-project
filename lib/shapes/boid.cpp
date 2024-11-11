@@ -17,7 +17,7 @@ Boid::Boid(glm::vec3 start_pos, const BoidParams& params)
       goalAttraction(params.goalAttraction) {
 
     modelMatrix = glm::mat4(1.0f);
-    directions = directions_from_view_angle(120.0f);
+    directions = directions_from_view_angle(180.0f);
     buildVertices();
 }
 
@@ -117,20 +117,7 @@ void Boid::buildVertices() {
 }
 
 bool Boid::act(glm::vec3 goal_pos, std::vector<Box> obstacles, glm::vec3 flock_center, std::vector<Boid> boids) {
-    if(trail.size() >= 10){
-      trail.erase(trail.begin());
-    }
-    if(frame % 4 == 0){
-      trail.push_back(Sphere(0.01f, position, 0.0f));
-    }
-    frame++;
     if (dead) {
-      return false;
-    }
-    auto collisionBox = std::find_if(obstacles.begin(), obstacles.end(), [&](const Box& box) {
-        return box.contains(position);
-    });
-    if(collisionBox != obstacles.end()){
       return false;
     }
 
@@ -159,18 +146,12 @@ void Boid::applyForce(glm::vec3 force_direction, float strength) {
 
 void Boid::draw(Shader& shader) const {
     shader.setVec3("objectColor", boidR, boidG, boidB);
-
-
     glBindVertexArray(VAO);
 
     // Apply the model matrix to the shader program
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); // Draw using indices
     glBindVertexArray(0);
 
-    shader.setVec3("objectColor", trailR, trailG, trailB);
-    for(Sphere s : trail){
-      s.draw();
-    }
 }
 
 
@@ -240,9 +221,13 @@ void Boid::avoidObstacles(std::vector<Box> boxes, std::vector<Boid> boids){
         });
 
         if (collisionBox != boxes.end()) {
+            float rayLen = glm::distance(rayPosition, position);
+            if(rayLen <= 0.01f){
+              dead = true;
+            }
             applyForce(- glm::normalize(rayPosition - position) 
-                ,obstacleRepelForce / (glm::distance(rayPosition, position) * obstacleRepelDecay));
-            drawLine(rayPosition, position);
+                ,obstacleRepelForce / (rayLen * obstacleRepelDecay));
+            //drawLine(rayPosition, position);
             break;
         }
 

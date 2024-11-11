@@ -131,6 +131,7 @@ void Player::updatePos(glm::vec3 nextPoint) {
 
         // Move by the lesser of speed or remaining distance to avoid overshooting
         position += normalizedDirection * std::min(speed, distance);
+        position += force_direction * force_speed;
     }
 
     buildVertices();
@@ -170,4 +171,15 @@ void Player::shoot(std::vector<Boid>& boids, glm::vec3 cameraDir) {
   }
 
   glDisable(GL_LINES);
+}
+
+void Player::applyForce(glm::vec3 force_direction, float strength){
+    glm::vec3 normalized_force = glm::normalize(force_direction);
+    glm::vec3 force = normalized_force * strength;
+    force_direction += force * 1.02f;
+    direction = glm::normalize(direction);
+
+    float force_magnitude = glm::length(force);
+    force_speed += force_magnitude * 1.001f;
+    force_speed = glm::clamp(speed, 0.0f, 10.0f);
 }

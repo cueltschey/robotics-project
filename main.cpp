@@ -22,6 +22,7 @@
 #include <chrono>
 
 
+#include "utils/timer.h"
 #include "shapes/sphere.h"
 #include "shapes/sun.h"
 #include "shapes/planet.h"
@@ -98,12 +99,12 @@ int main() {
     glm::vec3 interpolatedPos = glm::mix(player.getPos(), cameraPos, 0.1f);  // Adjust 0.1f for smoother transitions
     player.updatePos(cameraPos);
 
-    int worldSize = 20;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(0,1,worldSize);
+    int worldSize = 5;
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(1,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
-    generateRandomBoids(boid_map, 10, worldSize, box_map, redBoidParams);
-    generateRandomBoids(boid_map, 10, worldSize, box_map, greenBoidParams);
-    generateRandomBoids(boid_map, 10, worldSize, box_map, blueBoidParams);
+    generateRandomBoids(boid_map, 200, worldSize, box_map, redBoidParams);
+    generateRandomBoids(boid_map, 200, worldSize, box_map, greenBoidParams);
+    generateRandomBoids(boid_map, 200, worldSize, box_map, blueBoidParams);
 
     std::vector<Bullet> bullets;
     ////GLuint boidTexture = loadTexture("../assets/boid.jpg");
@@ -116,12 +117,20 @@ int main() {
 
     Space space(200.0f, 1000, player.getPos());
 
-    Sun sun(5.0f, glm::vec3(0.0f,0.0f,0.0f), 0.0f);
-    Planet earth(2.0f, glm::vec3(10.0f,0.0f,0.0f));
-    earth.orbit(50.0f, 0.01f);
+    Planet sun(5.0f, glm::vec3(0.0f,0.0f,0.0f));
 
+    Planet earth(2.0f, glm::vec3(50.0f,0.0f,0.0f));
     Planet moon(0.5f, glm::vec3(0.0f,0.0f,0.0f));
-    moon.orbit(10.0f, 0.1f);
+
+    earth.orbit(50.0f, 0.1f);
+    moon.orbit(10.0f, 0.5f);
+
+    std::vector<Planet> planets;
+    planets.push_back(sun);
+    planets.push_back(earth);
+    planets.push_back(moon);
+
+    Timer t;
 
 
     glEnable(GL_DEPTH_TEST);
@@ -131,6 +140,7 @@ int main() {
     bool game_over = false;
     int frame = 0;
     while (!glfwWindowShouldClose(window) && !game_over) {
+        t.start();
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -169,27 +179,38 @@ int main() {
         brightShader.setMat4("view", view);
         brightShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
 
-        glm::vec3 flock_center = getCenter(boid_map);
+        std::unordered_map<std::tuple<int, int, int>, glm::vec3> flock_map = getCenter(boid_map);
+
+        std::tuple<int, int, int> player_cell = positionToCell(interpolatedPos);
 
         for(auto& [cell, boids] : boid_map){
           if(game_over)
             break;
 
+          if(player_cell == cell){
+            for(Boid& b : boids){
+              if(b.contains(interpolatedPos)){
+                playSound(explosion);
+                game_over = true;
+                break;
+              }
+            }
+          }
+
+          glm::vec3 cell_flock = flock_map[cell];
+          std::vector<Box> cell_boxes = box_map[cell];
+
           for (size_t i = 0; i < boids.size(); i++) {
             if(!boids[i].act(interpolatedPos,
-                  box_map[positionToCell(boids[i].getPos())],
-                  flock_center,
-                  boid_map[positionToCell(boids[i].getPos())])){
+                  cell_boxes,
+                  cell_flock,
+                  boids)){
               std::cout << "Alert: boid crashed!!" << std::endl;
               boids.erase(boids.begin() + i);
             }
             boids[i].draw(brightShader);
-            if(boids[i].contains(interpolatedPos)){
-              playSound(explosion);
-              game_over = true;
-              break;
-            }
           }
+          std::cout <<  boids.size() << std::endl;
         }
 
 
@@ -236,21 +257,37 @@ int main() {
           for (const Box& box : boxes) {
             box.draw(lightingShader);
             if(box.contains(interpolatedPos)){
+              playSound(explosion);
               game_over = true;
-              break;
             }
           }
         }
 
         lightingShader.setVec3("objectColor", 0.5f, 0.5f, 0.5f);
-        earth.updatePos(sun.getPos());
-        moon.updatePos(earth.getPos());
-        earth.draw();
-        moon.draw();
+        Planet* last = nullptr;
+        for(Planet& planet : planets){
+          if(last != nullptr){
+            planet.updatePos(last->getPos());
+          }
+          player.applyForce(
+              planet.getPos() - interpolatedPos,
+              planet.radius / distance(planet.getPos(), interpolatedPos)
+              );
+          planet.draw();
+          if(planet.contains(interpolatedPos)){
+            playSound(explosion);
+            game_over = true;
+          }
+          last = &planet;
+        }
 
         processInput(window, player);
         glfwSwapBuffers(window);
         glfwPollEvents();
+        if(game_over){
+          std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        //t.stop();
     }
 
 

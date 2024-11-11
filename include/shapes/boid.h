@@ -97,8 +97,6 @@ private:
     std::vector<GLuint> indices;
     GLuint VAO, VBO, EBO;
 
-    std::vector<Sphere> trail;
-    int frame = 0;
 };
 
 #endif
