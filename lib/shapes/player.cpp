@@ -2,6 +2,8 @@
 #include <algorithm>
 #include "utils/m_shader.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 Player::Player(float size, glm::vec3 start_pos)
     : size(size), position(start_pos), direction(0.0f,0.0f,0.0f) {
 
@@ -130,6 +132,7 @@ void Player::updatePos(glm::vec3 nextPoint) {
         glm::vec3 normalizedDirection = direction / distance;
 
         // Move by the lesser of speed or remaining distance to avoid overshooting
+        std::cout << force_speed << std::endl;
         position += normalizedDirection * std::min(speed, distance);
         position += force_direction * force_speed;
     }
@@ -177,9 +180,18 @@ void Player::applyForce(glm::vec3 force_direction, float strength){
     glm::vec3 normalized_force = glm::normalize(force_direction);
     glm::vec3 force = normalized_force * strength;
     force_direction += force * 1.02f;
-    direction = glm::normalize(direction);
+    force_direction = glm::normalize(direction);
 
     float force_magnitude = glm::length(force);
     force_speed += force_magnitude * 1.001f;
-    force_speed = glm::clamp(speed, 0.0f, 10.0f);
+    force_speed = glm::clamp(force_speed, 0.0f, 10.0f);
+    drawLine(position, position + force_direction * force_speed);
 }
+
+void Player::drawLine(glm::vec3 start, glm::vec3 end){
+    glBegin(GL_LINES);
+    glVertex3fv(glm::value_ptr(start));
+    glVertex3fv(glm::value_ptr(end));
+    glEnd();
+}
+

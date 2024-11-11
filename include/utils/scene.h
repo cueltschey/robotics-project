@@ -83,7 +83,7 @@ void updateCamera(GLFWwindow* window, glm::vec3 playerPos) {
     updateCameraPositionAroundPlayer(playerPos, radius, yaw, pitch, cameraPos, cameraFront);
 }
 
-void processInput(GLFWwindow *window, Player& player) {
+void processInput(GLFWwindow *window) {
     float cameraSpeed = 2.5f * deltaTime;
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)

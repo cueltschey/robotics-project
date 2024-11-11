@@ -108,7 +108,7 @@ int main() {
 
     std::vector<Bullet> bullets;
     ////GLuint boidTexture = loadTexture("../assets/boid.jpg");
-    GLuint playerTexture = loadTexture("../assets/player.jpg");
+    //GLuint playerTexture = loadTexture("../assets/player.jpg");
 
 
     Shader lightingShader("../shaders/shadow.vs", "../shaders/shadow.fs");
@@ -210,7 +210,6 @@ int main() {
             }
             boids[i].draw(brightShader);
           }
-          std::cout <<  boids.size() << std::endl;
         }
 
 
@@ -269,8 +268,9 @@ int main() {
           if(last != nullptr){
             planet.updatePos(last->getPos());
           }
+
           player.applyForce(
-              planet.getPos() - interpolatedPos,
+              glm::normalize(planet.getPos() - interpolatedPos),
               planet.radius / distance(planet.getPos(), interpolatedPos)
               );
           planet.draw();
@@ -281,13 +281,13 @@ int main() {
           last = &planet;
         }
 
-        processInput(window, player);
+        processInput(window);
         glfwSwapBuffers(window);
         glfwPollEvents();
         if(game_over){
           std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-        //t.stop();
+        t.stop();
     }
 
 

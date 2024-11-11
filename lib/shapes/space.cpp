@@ -28,7 +28,6 @@ void Space::createStars(const glm::vec3& playerPosition){
   for (int i = 0; i < numStars; i++) {
     stars.push_back(Sphere(0.1f, randomStarPos(playerPosition, radius / 2, radius * 2), 0.0f));
   }
-  std::cout << stars.size() << std::endl;
 }
 
 

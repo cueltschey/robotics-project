@@ -27,6 +27,8 @@ public:
 private:
     void buildVertices();
     glm::vec3 rotateVertex(const glm::vec3& vertex, const glm::vec3& direction);
+    void drawLine(glm::vec3 start, glm::vec3 end);
+
 
     mutable std::vector<Sphere> trail;
 
