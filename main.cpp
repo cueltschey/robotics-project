@@ -94,17 +94,15 @@ int main() {
     //std::this_thread::sleep_for(std::chrono::seconds(3));
 
 
-    Player player(0.15f, playerPos);
+    Player player(0.15f, glm::vec3(100.0f,0.0f,0.0f));
 
-    glm::vec3 interpolatedPos = glm::mix(player.getPos(), cameraPos, 0.1f);  // Adjust 0.1f for smoother transitions
-    player.updatePos(cameraPos);
 
     int worldSize = 5;
     std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(1,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
-    generateRandomBoids(boid_map, 200, worldSize, box_map, redBoidParams);
-    generateRandomBoids(boid_map, 200, worldSize, box_map, greenBoidParams);
-    generateRandomBoids(boid_map, 200, worldSize, box_map, blueBoidParams);
+    generateRandomBoids(boid_map, 400, worldSize, box_map, redBoidParams);
+    generateRandomBoids(boid_map, 400, worldSize, box_map, greenBoidParams);
+    generateRandomBoids(boid_map, 400, worldSize, box_map, blueBoidParams);
 
     std::vector<Bullet> bullets;
     ////GLuint boidTexture = loadTexture("../assets/boid.jpg");
@@ -117,10 +115,10 @@ int main() {
 
     Space space(200.0f, 1000, player.getPos());
 
-    Planet sun(5.0f, glm::vec3(0.0f,0.0f,0.0f));
+    Planet sun(5.0f, glm::vec3(0.0f,0.0f,0.0f), 1.0f);
 
-    Planet earth(2.0f, glm::vec3(50.0f,0.0f,0.0f));
-    Planet moon(0.5f, glm::vec3(0.0f,0.0f,0.0f));
+    Planet earth(2.0f, glm::vec3(50.0f,0.0f,0.0f), 0.5f);
+    Planet moon(0.5f, glm::vec3(0.0f,0.0f,0.0f), 0.1f);
 
     earth.orbit(50.0f, 0.1f);
     moon.orbit(10.0f, 0.5f);
@@ -167,9 +165,6 @@ int main() {
         glm::mat4 model = glm::mat4(1.0f);
         glLoadMatrixf(glm::value_ptr(view));
 
-        glm::vec3 interpolatedPos = glm::mix(player.getPos(), playerPos, 0.1f);
-        player.updatePos(interpolatedPos);
-
         updateCamera(window, player.getPos());
 
 
@@ -181,7 +176,7 @@ int main() {
 
         std::unordered_map<std::tuple<int, int, int>, glm::vec3> flock_map = getCenter(boid_map);
 
-        std::tuple<int, int, int> player_cell = positionToCell(interpolatedPos);
+        std::tuple<int, int, int> player_cell = positionToCell(player.getPos());
 
         for(auto& [cell, boids] : boid_map){
           if(game_over)
@@ -189,10 +184,9 @@ int main() {
 
           if(player_cell == cell){
             for(Boid& b : boids){
-              if(b.contains(interpolatedPos)){
+              if(b.contains(player.getPos())){
                 playSound(explosion);
                 game_over = true;
-                break;
               }
             }
           }
@@ -201,7 +195,7 @@ int main() {
           std::vector<Box> cell_boxes = box_map[cell];
 
           for (size_t i = 0; i < boids.size(); i++) {
-            if(!boids[i].act(interpolatedPos,
+            if(!boids[i].act(player.getPos(),
                   cell_boxes,
                   cell_flock,
                   boids)){
@@ -215,14 +209,14 @@ int main() {
 
         brightShader.setVec3("objectColor", 1.0f, 0.0f, 0.0f);
         for(auto& b : bullets){
-          b.updatePosition(interpolatedPos);
+          b.updatePosition(player.getPos());
           b.checkCollisions(boid_map[positionToCell(b.getPos())]);
           b.draw();
         }
 
 
         if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS){
-          bullets.push_back(Bullet(interpolatedPos, cameraFront, 0.3f, explosion));
+          bullets.push_back(Bullet(player.getPos(), cameraFront, 0.3f, explosion));
           playSound(lazer);
         }
 
@@ -236,8 +230,7 @@ int main() {
         brightShader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
         space.render();
 
-
-
+        player.updatePos(cameraFront);
         player.draw(brightShader);
 
         brightShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
@@ -255,7 +248,7 @@ int main() {
         for (const auto& [cell, boxes] : box_map) {
           for (const Box& box : boxes) {
             box.draw(lightingShader);
-            if(box.contains(interpolatedPos)){
+            if(box.contains(player.getPos())){
               playSound(explosion);
               game_over = true;
             }
@@ -269,25 +262,27 @@ int main() {
             planet.updatePos(last->getPos());
           }
 
+          brightShader.use();
           player.applyForce(
-              glm::normalize(planet.getPos() - interpolatedPos),
-              planet.radius / distance(planet.getPos(), interpolatedPos)
+              glm::normalize(planet.getPos() - player.getPos()),
+              glm::clamp(planet.gravity / (glm::distance(planet.getPos(), player.getPos()) * 0.4f), 0.0f, 1.0f)
               );
+          lightingShader.use();
           planet.draw();
-          if(planet.contains(interpolatedPos)){
+          if(planet.contains(player.getPos())){
             playSound(explosion);
             game_over = true;
           }
           last = &planet;
         }
 
-        processInput(window);
+        processInput(window, player);
         glfwSwapBuffers(window);
         glfwPollEvents();
         if(game_over){
           std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-        t.stop();
+        //t.stop();
     }
 
 

@@ -20,7 +20,7 @@
 
 
 glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  0.0f);
-glm::vec3 playerPos   = glm::vec3(0.0f, 0.0f,  40.0f);
+glm::vec3 playerPos   = glm::vec3(0.0f, 0.0f,  0.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 glm::mat4 view;
@@ -83,25 +83,25 @@ void updateCamera(GLFWwindow* window, glm::vec3 playerPos) {
     updateCameraPositionAroundPlayer(playerPos, radius, yaw, pitch, cameraPos, cameraFront);
 }
 
-void processInput(GLFWwindow *window) {
-    float cameraSpeed = 2.5f * deltaTime;
+void processInput(GLFWwindow *window, Player& player) {
+    cameraSpeed = 2.5f * deltaTime;
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         cameraSpeed = 10.5f * deltaTime;
 
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        playerPos += cameraSpeed * cameraFront;
+        player.applyForce(cameraFront, cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        playerPos -= cameraSpeed * cameraFront;
+        player.applyForce(-cameraFront, cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        playerPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        player.applyForce(-glm::normalize(glm::cross(cameraFront, cameraUp)), cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        playerPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        player.applyForce(glm::normalize(glm::cross(cameraFront, cameraUp)), cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        playerPos += cameraSpeed * cameraUp;
+        player.applyForce(cameraUp, cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        playerPos -= cameraSpeed * cameraUp;
+        player.applyForce(-cameraUp, cameraSpeed);
 
     float sensitivity = 2.5f;
 

@@ -5,7 +5,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 Player::Player(float size, glm::vec3 start_pos)
-    : size(size), position(start_pos), direction(0.0f,0.0f,0.0f) {
+    : size(size), position(start_pos), direction(0.0f), 
+    turret_sphere(size * 0.50f, start_pos, 0.0f), turret_barrel(start_pos, 0.01f, 1.0f, 5) {
 
     modelMatrix = glm::mat4(1.0f);
     buildVertices();
@@ -105,10 +106,14 @@ void Player::buildVertices() {
 
 
 void Player::draw(Shader& shader) const {
+    shader.use();
     if(trail.size() >= 40){
       trail.erase(trail.begin());
     }
     trail.push_back(Sphere(0.01f, position, 0.0f));
+
+    shader.setVec3("objectColor", glm::vec3(0.5f,0.5f,0.5f));
+    turret_barrel.draw();
 
     glBindVertexArray(VAO);
 
@@ -116,27 +121,21 @@ void Player::draw(Shader& shader) const {
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); // Draw using indices
     glBindVertexArray(0);
 
-    shader.use();
-    shader.setVec3("objectColor", glm::vec3(1.0f,1.0f,0.0f));
+
+    shader.setVec3("objectColor", glm::vec3(0.0f,1.0f,0.0f));
+    turret_sphere.draw();
+
+    shader.setVec3("objectColor", glm::vec3(1.0f,0.5f,0.0f));
     for(Sphere s : trail){
       s.draw();
     }
 }
 
-void Player::updatePos(glm::vec3 nextPoint) {
-    direction = nextPoint - position;
-    float distance = glm::length(direction);
-    
-    // Normalize the direction only if distance is greater than a small threshold to avoid NaNs
-    if (distance > 0.001f) {
-        glm::vec3 normalizedDirection = direction / distance;
-
-        // Move by the lesser of speed or remaining distance to avoid overshooting
-        std::cout << force_speed << std::endl;
-        position += normalizedDirection * std::min(speed, distance);
-        position += force_direction * force_speed;
-    }
-
+void Player::updatePos(glm::vec3 cameraFront) {
+    position += direction * std::min(speed, 10.1f);
+    turret_sphere.setPosition(position + direction * 0.05f);
+    turret_barrel.setDirection(cameraFront + glm::vec3(0.0f, 0.2f, 0.0f));
+    turret_barrel.setPosition(position + direction * 0.05f);
     buildVertices();
 }
 
@@ -179,13 +178,15 @@ void Player::shoot(std::vector<Boid>& boids, glm::vec3 cameraDir) {
 void Player::applyForce(glm::vec3 force_direction, float strength){
     glm::vec3 normalized_force = glm::normalize(force_direction);
     glm::vec3 force = normalized_force * strength;
-    force_direction += force * 1.02f;
-    force_direction = glm::normalize(direction);
+    direction += force * 1.02f;
+    direction = glm::normalize(direction);
 
     float force_magnitude = glm::length(force);
-    force_speed += force_magnitude * 1.001f;
-    force_speed = glm::clamp(force_speed, 0.0f, 10.0f);
-    drawLine(position, position + force_direction * force_speed);
+    speed *= 0.95;
+    speed += force_magnitude * 0.1f;
+    speed = glm::clamp(speed, 0.0f, 1.0f);
+    drawLine(position,  position + normalized_force * strength * 10.0f);
+    std::cout << speed << std::endl;
 }
 
 void Player::drawLine(glm::vec3 start, glm::vec3 end){

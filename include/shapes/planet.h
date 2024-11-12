@@ -9,8 +9,8 @@
 
 class Planet {
 public:
-    Planet(float radius, glm::vec3 start_pos)
-        : radius(radius), position(start_pos) {
+    Planet(float radius, glm::vec3 start_pos, float gravity_ = 0.0f)
+        : radius(radius), position(start_pos), gravity(gravity_) {
         sectorCount = std::max(18, static_cast<int>(radius * 10)); // Higher for larger radii
         stackCount = std::max(9, static_cast<int>(radius * 5));    // Proportionally lower than sectors
 
@@ -27,6 +27,7 @@ public:
 
     bool contains(glm::vec3 p) const { return glm::distance(position, p) < radius; };
     float radius;
+    float gravity;
 
 
 private:
