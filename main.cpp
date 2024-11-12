@@ -94,15 +94,15 @@ int main() {
     //std::this_thread::sleep_for(std::chrono::seconds(3));
 
 
-    Player player(0.15f, glm::vec3(100.0f,0.0f,0.0f));
+    Player player(0.15f, glm::vec3(20.0f,0.0f,0.0f));
 
 
-    int worldSize = 5;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(1,1,worldSize);
+    int worldSize = 80;
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(10000,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
-    generateRandomBoids(boid_map, 400, worldSize, box_map, redBoidParams);
-    generateRandomBoids(boid_map, 400, worldSize, box_map, greenBoidParams);
-    generateRandomBoids(boid_map, 400, worldSize, box_map, blueBoidParams);
+    generateRandomBoids(boid_map, 800, worldSize, box_map, redBoidParams);
+    generateRandomBoids(boid_map, 800, worldSize, box_map, greenBoidParams);
+    generateRandomBoids(boid_map, 800, worldSize, box_map, blueBoidParams);
 
     std::vector<Bullet> bullets;
     ////GLuint boidTexture = loadTexture("../assets/boid.jpg");
@@ -124,9 +124,9 @@ int main() {
     moon.orbit(10.0f, 0.5f);
 
     std::vector<Planet> planets;
-    planets.push_back(sun);
-    planets.push_back(earth);
-    planets.push_back(moon);
+    //planets.push_back(sun);
+    //planets.push_back(earth);
+    //planets.push_back(moon);
 
     Timer t;
 
@@ -185,8 +185,8 @@ int main() {
           if(player_cell == cell){
             for(Boid& b : boids){
               if(b.contains(player.getPos())){
-                playSound(explosion);
-                game_over = true;
+                //playSound(explosion);
+                //game_over = true;
               }
             }
           }

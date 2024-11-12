@@ -225,9 +225,9 @@ void Boid::avoidObstacles(std::vector<Box> boxes, std::vector<Boid> boids){
             if(rayLen <= 0.01f){
               dead = true;
             }
+            // TODO: fix obstacle avoidance
             applyForce(- glm::normalize(rayPosition - position) 
                 ,obstacleRepelForce / (rayLen * obstacleRepelDecay));
-            //drawLine(rayPosition, position);
             break;
         }
 
@@ -238,7 +238,6 @@ void Boid::avoidObstacles(std::vector<Box> boxes, std::vector<Boid> boids){
   for(Boid& boid : boids){
     applyForce(- glm::normalize(boid.getPos() - position) 
         ,boidRepelForce / (glm::distance(boid.getPos(), position) * boidRepelDecay));
-    //drawLine(position, boid.getPos());
   }
 }
 
