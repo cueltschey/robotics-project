@@ -6,7 +6,7 @@
 
 
 Boid::Boid(glm::vec3 start_pos, const BoidParams& params)
-    : size(params.size), position(start_pos), direction(0.0f, 0.0f, 0.0f),
+    : size(params.size), position(start_pos), direction(1.0f, 0.0f, 0.0f),
       boidR(params.boidR), boidG(params.boidG), boidB(params.boidB),
       trailR(params.trailR), trailG(params.trailG), trailB(params.trailB),
       rayStepSize(params.rayStepSize), rayMaxLength(params.rayMaxLength),
@@ -116,10 +116,12 @@ void Boid::buildVertices() {
     glBindVertexArray(0);
 }
 
-bool Boid::act(glm::vec3 goal_pos, std::vector<Box> obstacles, glm::vec3 flock_center, std::vector<Boid> boids) {
+bool Boid::act(glm::vec3 goal_pos, std::vector<Box> obstacles, glm::vec3 flock_center, std::vector<Boid>& boids) {
     if (dead) {
       return false;
     }
+
+    applyFlockForces(boids);
 
     glm::vec3 flock_center_direction = glm::normalize(flock_center - position);
     applyForce(flock_center_direction, flockAttraction);
@@ -227,19 +229,33 @@ void Boid::avoidObstacles(std::vector<Box> boxes, std::vector<Boid> boids){
             }
             applyForce(- glm::normalize(rayPosition - position) 
                 ,obstacleRepelForce / (rayLen * obstacleRepelDecay));
-            //drawLine(rayPosition, position);
             break;
         }
-
-
     }
   }
 
-  for(Boid& boid : boids){
-    applyForce(- glm::normalize(boid.getPos() - position) 
-        ,boidRepelForce / (glm::distance(boid.getPos(), position) * boidRepelDecay));
-    //drawLine(position, boid.getPos());
-  }
+}
+
+void Boid::applyFlockForces(std::vector<Boid>& boids) {
+    glm::vec3 averageDirection(0.1, 0.0f, 0.0f);
+    int neighborCount = 0;
+
+    for (Boid& boid : boids) {
+        if(&boid != this){
+          applyForce(-glm::normalize(boid.getPos() - position) 
+            ,boidRepelForce / (glm::distance(boid.getPos(), position) * boidRepelDecay));
+          averageDirection += boid.getDirection();
+          neighborCount++;
+        }
+    }
+
+    float alignmentStrength = 0.0f;
+
+    if (neighborCount > 0) {
+        averageDirection /= static_cast<float>(neighborCount);
+        averageDirection = glm::normalize(averageDirection);
+        applyForce(-averageDirection, alignmentStrength);
+    }
 }
 
 void Boid::drawLine(glm::vec3 start, glm::vec3 end){

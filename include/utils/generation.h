@@ -33,6 +33,52 @@ std::tuple<int, int, int> positionToCell(const glm::vec3& pos) {
     return std::make_tuple(cellX, cellY, cellZ);
 }
 
+void drawChunkBorders(const std::unordered_map<std::tuple<int, int, int>, std::vector<Box>>& box_map) {
+    // Define the half size of a cell
+    float halfCellSize = CELL_SIZE / 2.0f;
+
+    for (const auto& [cell, boxes] : box_map) {
+        int cellX, cellY, cellZ;
+        std::tie(cellX, cellY, cellZ) = cell;
+
+        // Calculate the center of this cell
+        glm::vec3 center(cellX * CELL_SIZE, cellY * CELL_SIZE, cellZ * CELL_SIZE);
+
+        // Define the 8 corners of the wireframe box
+        glm::vec3 corners[8] = {
+            center + glm::vec3(-halfCellSize, -halfCellSize, -halfCellSize),
+            center + glm::vec3(halfCellSize, -halfCellSize, -halfCellSize),
+            center + glm::vec3(halfCellSize, halfCellSize, -halfCellSize),
+            center + glm::vec3(-halfCellSize, halfCellSize, -halfCellSize),
+            center + glm::vec3(-halfCellSize, -halfCellSize, halfCellSize),
+            center + glm::vec3(halfCellSize, -halfCellSize, halfCellSize),
+            center + glm::vec3(halfCellSize, halfCellSize, halfCellSize),
+            center + glm::vec3(-halfCellSize, halfCellSize, halfCellSize),
+        };
+
+        // Set color for the cell borders (e.g., light gray)
+        glColor3f(0.7f, 0.7f, 0.7f);
+
+        // Draw edges of the cube
+        glBegin(GL_LINES);
+        for (int i = 0; i < 4; ++i) {
+            // Bottom square
+            glVertex3fv(&corners[i].x);
+            glVertex3fv(&corners[(i + 1) % 4].x);
+
+            // Top square
+            glVertex3fv(&corners[i + 4].x);
+            glVertex3fv(&corners[(i + 1) % 4 + 4].x);
+
+            // Vertical lines connecting top and bottom squares
+            glVertex3fv(&corners[i].x);
+            glVertex3fv(&corners[i + 4].x);
+        }
+        glEnd();
+    }
+}
+
+
 glm::vec3 getRandomPointOutsideBoxes(
     std::unordered_map<std::tuple<int,int,int>, std::vector<Box>>& box_map,
     float maxPosition,

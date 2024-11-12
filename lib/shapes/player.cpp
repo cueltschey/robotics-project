@@ -186,7 +186,6 @@ void Player::applyForce(glm::vec3 force_direction, float strength){
     speed += force_magnitude * 0.1f;
     speed = glm::clamp(speed, 0.0f, 1.0f);
     drawLine(position,  position + normalized_force * strength * 10.0f);
-    std::cout << speed << std::endl;
 }
 
 void Player::drawLine(glm::vec3 start, glm::vec3 end){

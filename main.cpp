@@ -97,12 +97,12 @@ int main() {
     Player player(0.15f, glm::vec3(100.0f,0.0f,0.0f));
 
 
-    int worldSize = 5;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(1,1,worldSize);
+    int worldSize = 100;
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(1000,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
-    generateRandomBoids(boid_map, 400, worldSize, box_map, redBoidParams);
-    generateRandomBoids(boid_map, 400, worldSize, box_map, greenBoidParams);
-    generateRandomBoids(boid_map, 400, worldSize, box_map, blueBoidParams);
+    generateRandomBoids(boid_map, 20, worldSize, box_map, redBoidParams);
+    generateRandomBoids(boid_map, 20, worldSize, box_map, greenBoidParams);
+    generateRandomBoids(boid_map, 20, worldSize, box_map, blueBoidParams);
 
     std::vector<Bullet> bullets;
     ////GLuint boidTexture = loadTexture("../assets/boid.jpg");
@@ -124,9 +124,9 @@ int main() {
     moon.orbit(10.0f, 0.5f);
 
     std::vector<Planet> planets;
-    planets.push_back(sun);
-    planets.push_back(earth);
-    planets.push_back(moon);
+    //planets.push_back(sun);
+    //planets.push_back(earth);
+    ////planets.push_back(moon);
 
     Timer t;
 
@@ -136,17 +136,13 @@ int main() {
 
 
     bool game_over = false;
-    int frame = 0;
     while (!glfwWindowShouldClose(window) && !game_over) {
         t.start();
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if(frame % static_cast<int>(CELL_SIZE) == 0){
-          boid_map = recalculateCells(boid_map);
-        }
+        boid_map = recalculateCells(boid_map);
 
-        frame++;
 
 
         float currentFrame = glfwGetTime();
@@ -173,6 +169,9 @@ int main() {
         brightShader.setMat4("projection", projection);
         brightShader.setMat4("view", view);
         brightShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+
+        drawChunkBorders(box_map);
+
 
         std::unordered_map<std::tuple<int, int, int>, glm::vec3> flock_map = getCenter(boid_map);
 
@@ -234,7 +233,7 @@ int main() {
         player.draw(brightShader);
 
         brightShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
-        sun.draw();
+        //sun.draw();
 
         lightingShader.use();
         lightingShader.setMat4("model", model);

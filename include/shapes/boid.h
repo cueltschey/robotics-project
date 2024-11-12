@@ -40,7 +40,7 @@ class Boid {
 public:
     Boid(glm::vec3 start_pos, const BoidParams& params);
 
-    bool act(glm::vec3 goal_pos, std::vector<Box> obstacles, glm::vec3 flock_center, std::vector<Boid> boids);
+    bool act(glm::vec3 goal_pos, std::vector<Box> obstacles, glm::vec3 flock_center, std::vector<Boid>& boids);
     void draw(Shader& shader) const;
     glm::vec3 getPos() const { return position; };
     std::vector<glm::vec3> directions_from_view_angle(float angle);
@@ -52,6 +52,9 @@ public:
 
     glm::mat4 getModelMatrix() const { return modelMatrix; };
     void explode() { dead = true; };
+
+    glm::vec3 getDirection() const { return direction; };
+    void applyFlockForces(std::vector<Boid>& boids);
 
 private:
 
