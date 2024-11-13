@@ -104,15 +104,16 @@ int main() {
     generateRandomBoids(boid_map, 0, worldSize, box_map, blueBoidParams);
 
     std::vector<Bullet> bullets;
-    ////GLuint boidTexture = loadTexture("../assets/boid.jpg");
+    //GLuint boidTexture = loadTexture("../assets/boid.jpg");
     //GLuint playerTexture = loadTexture("../assets/player.jpg");
+    GLuint asteroidTexture = loadTexture("../assets/asteroid.jpg");
 
 
     Shader lightingShader("../shaders/shadow.vs", "../shaders/shadow.fs");
     Shader textureShader("../shaders/boid.vs", "../shaders/boid.fs");
     Shader brightShader("../shaders/1.colors.vs", "../shaders/1.colors.fs");
 
-    Space space(200.0f, 1000, player.getPos());
+    Space space(200.0f, 100.0f, 1000, 2000, player.getPos());
 
     Planet sun(5.0f, glm::vec3(0.0f,0.0f,0.0f), 1.0f);
 
@@ -204,14 +205,14 @@ int main() {
           }
         }
 
-        //textureShader.use();
-        //textureShader.setMat4("model", model);
-        //textureShader.setMat4("view", view);
-        //textureShader.setMat4("projection", projection);
+        textureShader.use();
+        textureShader.setMat4("model", model);
+        textureShader.setMat4("view", view);
+        textureShader.setMat4("projection", projection);
+        glBindTexture(GL_TEXTURE_2D, asteroidTexture);
 
 
-        brightShader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
-        space.render();
+        space.render(brightShader, textureShader);
 
         player.updatePos(cameraFront);
         player.draw(boid_map, brightShader, frames_since_shot, shot_cooldown);
