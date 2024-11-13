@@ -78,6 +78,7 @@ private:
     float flockAttraction = 0.7f;
 
     float maxBoidSpeed = 1.0f;
+    float maxDetectionRange = 30.0f;
 
     void buildVertices();
     void applyForce(glm::vec3 force_direction, float strength);

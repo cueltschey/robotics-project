@@ -53,7 +53,7 @@ private:
     std::vector<GLuint> indices;
     GLuint VAO, VBO, EBO;
 
-    mutable Sphere turret_sphere;
+    mutable Sphere thruster;
     mutable Sphere aimer;
 
     std::vector<Bullet> bullets;

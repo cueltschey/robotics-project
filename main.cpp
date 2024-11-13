@@ -41,10 +41,10 @@ BoidParams redBoidParams = {
     0.003f,             // rayStepSize
     0.03f,              // rayMaxLength
     0.85f,               // forceApplicationCoefficient
-    0.001f,              // speedIncreaseCoefficient
+    0.002f,              // speedIncreaseCoefficient
     10.0f,                // obstacleRepelForce
     3.0f,               // obstacleRepelDecay
-    1.0f,                // goalAttraction
+    2.0f,                // goalAttraction
     0.2f                 // size
 };
 
@@ -55,24 +55,24 @@ BoidParams blueBoidParams = {
     0.003f,            // rayStepSize
     0.03f,             // rayMaxLength
     0.7f,                // forceApplicationCoefficient
-    0.001f,              // speedIncreaseCoefficient
+    0.002f,              // speedIncreaseCoefficient
     10.5f,               // obstacleRepelForce
     3.5f,                // obstacleRepelDecay
-    1.0f,                // goalAttraction
-    0.1f                 // size
+    2.0f,                // goalAttraction
+    0.2f                 // size
 };
 
 // Green Boid parameters
 BoidParams greenBoidParams = {
     0.0f, 1.0f, 0.0f,    // boid color: green
     0.3f, 1.0f, 0.3f,    // trail color: light green
-    0.003f,            // rayStepSize
+    0.002f,            // rayStepSize
     0.03f,             // rayMaxLength
     0.8f,                // forceApplicationCoefficient
-    0.001f,              // speedIncreaseCoefficient
+    0.003f,              // speedIncreaseCoefficient
     10.8f,                // obstacleRepelForce
     4.2f,                // obstacleRepelDecay
-    1.0f,                // goalAttraction
+    2.0f,                // goalAttraction
     0.07f                // size
 };
 
@@ -96,12 +96,12 @@ int main() {
     Player player(0.15f, glm::vec3(100.0f,0.0f,0.0f));
 
 
-    int worldSize = 100;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(100,1,worldSize);
+    int worldSize = 200;
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(0,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
-    generateRandomBoids(boid_map, 200, worldSize, box_map, redBoidParams);
-    generateRandomBoids(boid_map, 200, worldSize, box_map, greenBoidParams);
-    generateRandomBoids(boid_map, 200, worldSize, box_map, blueBoidParams);
+    generateRandomBoids(boid_map, 0, worldSize, box_map, redBoidParams);
+    generateRandomBoids(boid_map, 0, worldSize, box_map, greenBoidParams);
+    generateRandomBoids(boid_map, 0, worldSize, box_map, blueBoidParams);
 
     std::vector<Bullet> bullets;
     ////GLuint boidTexture = loadTexture("../assets/boid.jpg");
@@ -123,9 +123,9 @@ int main() {
     moon.orbit(10.0f, 0.5f);
 
     std::vector<Planet> planets;
-    //planets.push_back(sun);
-    //planets.push_back(earth);
-    ////planets.push_back(moon);
+    planets.push_back(sun);
+    planets.push_back(earth);
+    planets.push_back(moon);
 
     Timer t;
 
@@ -203,9 +203,6 @@ int main() {
             boids[i].draw(brightShader);
           }
         }
-
-
-
 
         //textureShader.use();
         //textureShader.setMat4("model", model);

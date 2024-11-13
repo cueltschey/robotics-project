@@ -21,7 +21,7 @@ namespace std {
 
 Player::Player(float size, glm::vec3 start_pos)
     : size(size), position(start_pos), direction(0.0f), 
-    turret_sphere(size * 0.25, start_pos, 0.0f), aimer(0.05f, start_pos, 0.0f) {
+    thruster(size * 0.25, start_pos, 0.0f), aimer(0.05f, start_pos, 0.0f) {
 
     modelMatrix = glm::mat4(1.0f);
     buildVertices();
@@ -143,8 +143,8 @@ void Player::draw(
     glBindVertexArray(0);
 
 
-    shader.setVec3("objectColor", glm::vec3(0.5f, 0.25f + speed * 2.00f, 0.25f + speed * 2.00f));
-    turret_sphere.draw();
+    shader.setVec3("objectColor", glm::vec3(0.5f, 0.25f + speed * 3.00f, 0.25f + speed * 3.00f));
+    thruster.draw();
 
     shader.setVec3("objectColor", glm::vec3(1.0f,0.5f,0.0f));
     for(Sphere s : trail){
@@ -174,8 +174,9 @@ std::tuple<int, int, int> Player::positionToCell(const glm::vec3& pos) {
 
 void Player::updatePos(glm::vec3 cameraFront) {
     position += direction * std::min(speed, maxSpeed);
-    turret_sphere.setPosition(position);
-    aimer.setPosition(position + glm::normalize(cameraFront + glm::vec3(0.0f,0.2f,0.0f)) * 20.0f);
+    thruster.setPosition(position);
+    aimer.setPosition(glm::mix(aimer.getPos(),
+          position + glm::normalize(cameraFront + glm::vec3(0.0f,0.2f,0.0f)) * 20.0f, 0.3f));
     buildVertices();
 }
 

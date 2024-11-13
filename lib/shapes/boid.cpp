@@ -126,8 +126,11 @@ bool Boid::act(glm::vec3 goal_pos, std::vector<Box> obstacles, glm::vec3 flock_c
     glm::vec3 flock_center_direction = glm::normalize(flock_center - position);
     applyForce(flock_center_direction, flockAttraction);
 
-    glm::vec3 new_direction = glm::normalize(goal_pos - position);
-    applyForce(new_direction, goalAttraction);
+    if(glm::distance(goal_pos, position) < maxDetectionRange){
+      glm::vec3 goal_direction = glm::normalize(goal_pos - position);
+      // TODO: check if there is a line of sight to the goal_pos
+      applyForce(goal_direction, goalAttraction);
+    }
     position += direction * speed;
     speed *= 0.92;
     avoidObstacles(obstacles, boids);
