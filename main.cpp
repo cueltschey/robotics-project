@@ -97,11 +97,11 @@ int main() {
 
 
     int worldSize = 100;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(1000,1,worldSize);
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(100,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
-    generateRandomBoids(boid_map, 20, worldSize, box_map, redBoidParams);
-    generateRandomBoids(boid_map, 20, worldSize, box_map, greenBoidParams);
-    generateRandomBoids(boid_map, 20, worldSize, box_map, blueBoidParams);
+    generateRandomBoids(boid_map, 200, worldSize, box_map, redBoidParams);
+    generateRandomBoids(boid_map, 200, worldSize, box_map, greenBoidParams);
+    generateRandomBoids(boid_map, 200, worldSize, box_map, blueBoidParams);
 
     std::vector<Bullet> bullets;
     ////GLuint boidTexture = loadTexture("../assets/boid.jpg");
@@ -156,7 +156,7 @@ int main() {
         glm::mat4 projection = glm::perspective(
             glm::radians(45.0f),
             (float)width / (float)height, 0.1f, 800.0f);
-        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        view = glm::lookAt(cameraPos - glm::vec3(0.0f,0.2f,0.0f), cameraPos + cameraFront, cameraUp);
         glm::mat4 model = glm::mat4(1.0f);
         glLoadMatrixf(glm::value_ptr(view));
 
@@ -169,7 +169,7 @@ int main() {
         brightShader.setMat4("view", view);
         brightShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
 
-        drawChunkBorders(box_map);
+        //drawChunkBorders(box_map);
 
 
         std::unordered_map<std::tuple<int, int, int>, glm::vec3> flock_map = getCenter(boid_map);
@@ -217,7 +217,7 @@ int main() {
         space.render();
 
         player.updatePos(cameraFront);
-        player.draw(boid_map, brightShader);
+        player.draw(boid_map, brightShader, frames_since_shot, shot_cooldown);
 
         brightShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
         sun.draw();

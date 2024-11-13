@@ -23,14 +23,13 @@ public:
 
     void draw(
       std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map,
-      Shader& shader);
+      Shader& shader, int frames_since_shot, int shot_cooldown);
     glm::vec3 getPos() const { return position; };
     void updatePos(glm::vec3 cameraFront);
     void setSpeed(float s) {speed = s; };
     void applyForce(glm::vec3 force_direction, float strength);
 
-    void shoot(glm::vec3 cameraFront,
-        std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map);
+    void shoot(std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map);
 
 
 private:
@@ -41,6 +40,7 @@ private:
 
 
     mutable std::vector<Sphere> trail;
+    float maxSpeed = 10.1f;
 
     float speed = 5.5f;
     float size;
@@ -54,11 +54,12 @@ private:
     GLuint VAO, VBO, EBO;
 
     mutable Sphere turret_sphere;
-    mutable Cylinder turret_barrel;
+    mutable Sphere aimer;
 
     std::vector<Bullet> bullets;
 
     int since_last_shot = 0;
+
 
 
 };

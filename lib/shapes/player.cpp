@@ -21,7 +21,7 @@ namespace std {
 
 Player::Player(float size, glm::vec3 start_pos)
     : size(size), position(start_pos), direction(0.0f), 
-    turret_sphere(size * 0.50f, start_pos, 0.0f), turret_barrel(start_pos, 0.01f, 1.0f, 5) {
+    turret_sphere(size * 0.25, start_pos, 0.0f), aimer(0.05f, start_pos, 0.0f) {
 
     modelMatrix = glm::mat4(1.0f);
     buildVertices();
@@ -122,15 +122,19 @@ void Player::buildVertices() {
 
 void Player::draw(
     std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map,
-    Shader& shader) {
+    Shader& shader, int frames_since_shot, int shot_cooldown) {
     shader.use();
     if(trail.size() >= 40){
       trail.erase(trail.begin());
     }
     trail.push_back(Sphere(0.01f, position, 0.0f));
 
-    shader.setVec3("objectColor", glm::vec3(0.5f,0.5f,0.5f));
-    turret_barrel.draw();
+    shader.setVec3("objectColor", glm::vec3(
+          1.0f - (frames_since_shot / shot_cooldown),
+          (frames_since_shot / shot_cooldown),0.0f));
+    aimer.draw();
+
+    shader.setVec3("objectColor", glm::vec3(0.5f,0.4f,0.4f));
 
     glBindVertexArray(VAO);
 
@@ -139,7 +143,7 @@ void Player::draw(
     glBindVertexArray(0);
 
 
-    shader.setVec3("objectColor", glm::vec3(0.0f,1.0f,0.0f));
+    shader.setVec3("objectColor", glm::vec3(0.5f, 0.25f + speed * 2.00f, 0.25f + speed * 2.00f));
     turret_sphere.draw();
 
     shader.setVec3("objectColor", glm::vec3(1.0f,0.5f,0.0f));
@@ -153,10 +157,10 @@ void Player::draw(
         bullets.erase(bullets.begin() + i);
         continue;
       }
-      Bullet b = bullets[i];
-      shader.setVec3("objectColor", glm::vec3(1.0f - b.colorFade,0.5f - b.colorFade,0.0f));
+      Bullet& b = bullets[i];
+      shader.setVec3("objectColor", glm::vec3(1.0f - b.colorFade,1.0f - b.colorFade,0.0f));
       std::vector<Boid> boids = boid_map[positionToCell(b.getPos())];
-      b.draw();
+      b.draw(shader);
     }
 }
 
@@ -169,12 +173,10 @@ std::tuple<int, int, int> Player::positionToCell(const glm::vec3& pos) {
 }
 
 void Player::updatePos(glm::vec3 cameraFront) {
-    position += direction * std::min(speed, 10.1f);
-    turret_sphere.setPosition(position + direction * 0.05f);
-    turret_barrel.setDirection(cameraFront + glm::vec3(0.0f, 0.2f, 0.0f));
-    turret_barrel.setPosition(position + direction * 0.05f);
+    position += direction * std::min(speed, maxSpeed);
+    turret_sphere.setPosition(position);
+    aimer.setPosition(position + glm::normalize(cameraFront + glm::vec3(0.0f,0.2f,0.0f)) * 20.0f);
     buildVertices();
-    since_last_shot--;
 }
 
 void Player::applyForce(glm::vec3 force_direction, float strength){
@@ -197,10 +199,7 @@ void Player::drawLine(glm::vec3 start, glm::vec3 end){
     glEnd();
 }
 
-void Player::shoot(glm::vec3 cameraFront,
-    std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map){
-    if(since_last_shot <= 0){
-      bullets.push_back(Bullet(position, cameraFront, boid_map));
-    }
+void Player::shoot(std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map){
+    bullets.push_back(Bullet(position, glm::normalize(aimer.getPos() - position), boid_map));
 }
 

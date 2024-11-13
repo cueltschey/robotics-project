@@ -20,12 +20,31 @@ Bullet::Bullet(glm::vec3 startPos, glm::vec3 cameraFront,
         std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map)
     : position(startPos), 
     direction(glm::normalize(cameraFront)), 
-    maxDistance(50)
+    maxDistance(20)
     {
       int distance = 0;
       while (distance < maxDistance && !gone) {
         trail.push_back(position);
-        std::vector<Boid> boids = boid_map[positionToCell(position)];
+        std::tuple<int,int,int> currentCell = positionToCell(position);
+        std::vector<Boid>& boids = boid_map[currentCell];
+        std::vector<std::tuple<int, int, int>> cellOffsets = {
+            {0, 0, 0}, {1, 0, 0}, {-1, 0, 0},
+            {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1},
+            {1, 1, 0}, {-1, -1, 0}, {1, 0, 1}, {-1, 0, -1},
+            {0, 1, 1}, {0, -1, -1}, {1, -1, 0}, {-1, 1, 0},
+            {1, 0, -1}, {-1, 0, 1}, {0, 1, -1}, {0, -1, 1},
+            {1, 1, 1}, {-1, -1, -1}, {-1, 1, 1}, {1, -1, 1},
+            {1, 1, -1}, {-1, 1, -1}, {1, -1, -1}
+        };
+        for(int i = 0; i < cellOffsets.size() && boids.size() == 0; i++){
+          std::tuple<int, int, int> adjacentCell = {
+                std::get<0>(currentCell) + std::get<0>(cellOffsets[i]),
+                std::get<1>(currentCell) + std::get<1>(cellOffsets[i]),
+                std::get<2>(currentCell) + std::get<2>(cellOffsets[i])
+          };
+          boids = boid_map[adjacentCell];
+        }
+
         for (Boid& boid : boids) {
             if (glm::distance(boid.getPos(), position) < 0.1f){
                 boid.explode();
@@ -45,14 +64,14 @@ Bullet::Bullet(glm::vec3 startPos, glm::vec3 cameraFront,
     }
 }
 
-void Bullet::draw(){
+void Bullet::draw(Shader& shader){
     if (!gone) {
-        colorFade += 0.01f;
-        // TODO: draw lines
+        colorFade -= 0.01f;
     }
-    if(colorFade >= 1.0f){
+    if(colorFade <= 0.0f){
       gone = true;
     }
+    shader.setVec3("objectColor", colorFade, colorFade, 0.0f);
     for(int i = 0; i < trail.size() - 2; i++){
       drawLine(trail[i], trail[i+ 1]);
     }

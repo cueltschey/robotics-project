@@ -18,13 +18,13 @@ public:
     
 
     // Function to draw the bullet
-    void draw();
+    void draw(Shader& shader);
 
     glm::vec3 getPos() const { return position; };
 
     // Bullet sphere
     bool gone = false;
-    float colorFade = 0.0f;
+    float colorFade = 1.0f;
     
 private:
     void drawLine(glm::vec3 start, glm::vec3 end);

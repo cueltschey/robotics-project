@@ -15,6 +15,8 @@ public:
     float getY() const { return y; }
     float getZ() const { return z; }
 
+    glm::vec3 getPos() const { return glm::vec3(x,y,z); };
+
 
 private:
     void buildVertices();

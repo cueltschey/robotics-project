@@ -39,6 +39,9 @@ float lastFrame = 0.0f;
 
 float cameraSpeed = 5.5f;
 float radius = 5.0f;  // Radius of orbit around the player
+                      //
+int frames_since_shot = 0;
+int shot_cooldown = 50;
 
 void updateCameraPositionAroundPlayer(glm::vec3 playerPos, float radius, float yaw, float pitch, glm::vec3& cameraPos, glm::vec3& cameraFront) {
     // Convert spherical coordinates to Cartesian coordinates for camera position
@@ -106,8 +109,11 @@ void processInput(GLFWwindow *window, Player& player,
         player.applyForce(cameraUp, cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         player.applyForce(-cameraUp, cameraSpeed);
-    if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
-        player.shoot(cameraFront, boid_map);
+    if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS && frames_since_shot >= shot_cooldown){
+        player.shoot(boid_map);
+        frames_since_shot = 0;
+    }
+    frames_since_shot++;
 
     float sensitivity = 2.5f;
 
