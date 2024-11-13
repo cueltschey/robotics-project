@@ -5,6 +5,15 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <limits>
+#include <iostream>
+
+#include <tuple>
+#include <glm/glm.hpp>
+#include <unordered_map>
+#include <random>
+
+#include <functional>
+
 
 float distance(const aiVector3D& v1, const aiVector3D& v2) {
     return std::sqrt(std::pow(v2.x - v1.x, 2) + std::pow(v2.y - v1.y, 2) + std::pow(v2.z - v1.z, 2));

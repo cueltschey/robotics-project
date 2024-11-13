@@ -51,7 +51,9 @@ public:
     bool contains(glm::vec3 point) const;
 
     glm::mat4 getModelMatrix() const { return modelMatrix; };
-    void explode() { dead = true; };
+    void explode() {
+      dead = true;
+    };
 
     glm::vec3 getDirection() const { return direction; };
     void applyFlockForces(std::vector<Boid>& boids);

@@ -32,7 +32,7 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 
 include_directories(${OPENGL_INCLUDE_DIR} ${GLM_INCLUDE_DIRS} /usr/include/GLFW /usr/include/stb/)
 
-file(GLOB LIB_SRC lib/shapes/*.cpp)
+file(GLOB LIB_SRC lib/shapes/*.cpp lib/utils/*.cpp)
 include_directories(include)
 add_executable(boids main.cpp ${LIB_SRC})
 target_link_libraries(boids ${OPENGL_gl_LIBRARY} glfw glm::glm GLEW SDL2 SDL2_mixer assimp)

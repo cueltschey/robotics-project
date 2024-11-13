@@ -4,6 +4,21 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+namespace std {
+    template<>
+    struct hash<std::tuple<int, int, int>> {
+        size_t operator()(const std::tuple<int, int, int>& t) const {
+            size_t h1 = std::hash<int>{}(std::get<0>(t));
+            size_t h2 = std::hash<int>{}(std::get<1>(t));
+            size_t h3 = std::hash<int>{}(std::get<2>(t));
+            return h1 ^ (h2 << 1) ^ (h3 << 2);
+        }
+    };
+}
+
+#define CELL_SIZE 2.0f
+
+
 Player::Player(float size, glm::vec3 start_pos)
     : size(size), position(start_pos), direction(0.0f), 
     turret_sphere(size * 0.50f, start_pos, 0.0f), turret_barrel(start_pos, 0.01f, 1.0f, 5) {
@@ -105,7 +120,9 @@ void Player::buildVertices() {
 
 
 
-void Player::draw(Shader& shader) const {
+void Player::draw(
+    std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map,
+    Shader& shader) {
     shader.use();
     if(trail.size() >= 40){
       trail.erase(trail.begin());
@@ -129,6 +146,26 @@ void Player::draw(Shader& shader) const {
     for(Sphere s : trail){
       s.draw();
     }
+
+
+    for(size_t i = 0; i < bullets.size(); i++){
+      if(bullets[i].gone){
+        bullets.erase(bullets.begin() + i);
+        continue;
+      }
+      Bullet b = bullets[i];
+      shader.setVec3("objectColor", glm::vec3(1.0f - b.colorFade,0.5f - b.colorFade,0.0f));
+      std::vector<Boid> boids = boid_map[positionToCell(b.getPos())];
+      b.draw();
+    }
+}
+
+std::tuple<int, int, int> Player::positionToCell(const glm::vec3& pos) {
+    int cellX = static_cast<int>(std::ceil(pos.x) / CELL_SIZE);
+    int cellY = static_cast<int>(std::ceil(pos.y) / CELL_SIZE);
+    int cellZ = static_cast<int>(std::ceil(pos.z) / CELL_SIZE);
+
+    return std::make_tuple(cellX, cellY, cellZ);
 }
 
 void Player::updatePos(glm::vec3 cameraFront) {
@@ -137,42 +174,7 @@ void Player::updatePos(glm::vec3 cameraFront) {
     turret_barrel.setDirection(cameraFront + glm::vec3(0.0f, 0.2f, 0.0f));
     turret_barrel.setPosition(position + direction * 0.05f);
     buildVertices();
-}
-
-void Player::shoot(std::vector<Boid>& boids, glm::vec3 cameraDir) {
-
-  float maxDistance = 100.0f;  // Max distance for the ray
-  float threshold = 0.1f;      // Threshold distance for boid hit
-                               //
-  glEnable(GL_LINES);
-
-
-        // Disable GL_LINES after drawing the line
-
-  for (Boid& boid : boids) {
-      glm::vec3 boidPos = boid.getPos(); // Boid's position
-
-      glm::vec3 toBoid = boidPos - position;
-
-      float t = glm::dot(toBoid, cameraDir); // t is the scalar projection of the vector toBoid on the ray direction
-
-      // Check if the boid is in front of the player and within a certain distance
-      if (t > 0.0f && t < maxDistance) {
-          glm::vec3 closestPoint = position + t * cameraDir;
-
-          float distance = glm::length(closestPoint - boidPos);
-
-          if (distance <= threshold) {
-              glBegin(GL_LINES);
-              boid.explode();
-              glVertex3f(position.x, position.y, position.z);  // Player position (start of line)
-              glVertex3f(boidPos.x, boidPos.y, boidPos.z);        // Boid position (end of line)
-              glEnd();
-          }
-      }
-  }
-
-  glDisable(GL_LINES);
+    since_last_shot--;
 }
 
 void Player::applyForce(glm::vec3 force_direction, float strength){
@@ -193,5 +195,12 @@ void Player::drawLine(glm::vec3 start, glm::vec3 end){
     glVertex3fv(glm::value_ptr(start));
     glVertex3fv(glm::value_ptr(end));
     glEnd();
+}
+
+void Player::shoot(glm::vec3 cameraFront,
+    std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map){
+    if(since_last_shot <= 0){
+      bullets.push_back(Bullet(position, cameraFront, boid_map));
+    }
 }
 

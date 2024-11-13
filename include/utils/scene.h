@@ -12,7 +12,10 @@
 #include <SDL2/SDL_mixer.h>
 #include <thread>
 #include "shapes/player.h"
-
+#include <tuple>
+#include <unordered_map>
+#include "shapes/boid.h"
+#include "utils/generation.h"
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -83,7 +86,8 @@ void updateCamera(GLFWwindow* window, glm::vec3 playerPos) {
     updateCameraPositionAroundPlayer(playerPos, radius, yaw, pitch, cameraPos, cameraFront);
 }
 
-void processInput(GLFWwindow *window, Player& player) {
+void processInput(GLFWwindow *window, Player& player, 
+    std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map) {
     cameraSpeed = 2.5f * deltaTime;
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
@@ -102,6 +106,8 @@ void processInput(GLFWwindow *window, Player& player) {
         player.applyForce(cameraUp, cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         player.applyForce(-cameraUp, cameraSpeed);
+    if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+        player.shoot(cameraFront, boid_map);
 
     float sensitivity = 2.5f;
 

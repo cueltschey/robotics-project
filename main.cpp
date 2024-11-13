@@ -29,7 +29,6 @@
 #include "shapes/box.h"
 #include "shapes/boid.h"
 #include "shapes/space.h"
-#include "shapes/bullet.h"
 #include "utils/generation.h"
 #include "utils/sound.h"
 #include "algorithm/flock.h"
@@ -206,18 +205,6 @@ int main() {
         }
 
 
-        brightShader.setVec3("objectColor", 1.0f, 0.0f, 0.0f);
-        for(auto& b : bullets){
-          b.updatePosition(player.getPos());
-          b.checkCollisions(boid_map[positionToCell(b.getPos())]);
-          b.draw();
-        }
-
-
-        if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS){
-          bullets.push_back(Bullet(player.getPos(), cameraFront, 0.3f, explosion));
-          playSound(lazer);
-        }
 
 
         //textureShader.use();
@@ -230,10 +217,10 @@ int main() {
         space.render();
 
         player.updatePos(cameraFront);
-        player.draw(brightShader);
+        player.draw(boid_map, brightShader);
 
         brightShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
-        //sun.draw();
+        sun.draw();
 
         lightingShader.use();
         lightingShader.setMat4("model", model);
@@ -275,7 +262,7 @@ int main() {
           last = &planet;
         }
 
-        processInput(window, player);
+        processInput(window, player, boid_map);
         glfwSwapBuffers(window);
         glfwPollEvents();
         if(game_over){
