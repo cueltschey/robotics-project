@@ -116,7 +116,7 @@ void Boid::buildVertices() {
     glBindVertexArray(0);
 }
 
-bool Boid::act(glm::vec3 goal_pos, std::vector<Box> obstacles, glm::vec3 flock_center, std::vector<Boid>& boids) {
+bool Boid::act(glm::vec3 goal_pos, std::vector<Obstacle*> obstacles, glm::vec3 flock_center, std::vector<Boid>& boids) {
     if (dead) {
       return false;
     }
@@ -212,7 +212,7 @@ std::vector<glm::vec3> Boid::directions_from_view_angle(float angle){
     return kept_dirs;
 }
 
-void Boid::avoidObstacles(std::vector<Box> boxes, std::vector<Boid> boids){
+void Boid::avoidObstacles(std::vector<Obstacle*> boxes, std::vector<Boid> boids){
 
   for(auto dir : directions){
     glm::vec3 rotatedDir = glm::normalize(direction - dir);
@@ -221,11 +221,11 @@ void Boid::avoidObstacles(std::vector<Box> boxes, std::vector<Boid> boids){
     for (float distance = 0.0f; distance <= rayMaxLength; distance += rayStepSize) {
         rayPosition += rotatedDir;
 
-        auto collisionBox = std::find_if(boxes.begin(), boxes.end(), [&](const Box& box) {
-            return box.contains(rayPosition);
+        auto collisionObstacle = std::find_if(boxes.begin(), boxes.end(), [&](const Obstacle* box) {
+            return box->contains(rayPosition);
         });
 
-        if (collisionBox != boxes.end()) {
+        if (collisionObstacle != boxes.end()) {
             float rayLen = glm::distance(rayPosition, position);
             if(rayLen <= 0.01f){
               dead = true;

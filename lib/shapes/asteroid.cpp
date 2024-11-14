@@ -133,7 +133,9 @@ void Asteroid::rebuildVertices() {
     buildVertices(); // Rebuild the vertices based on the new position
 }
 
-void Asteroid::draw() const {
+void Asteroid::draw(Shader& shader) const {
+    shader.setVec3("objectColor", glm::vec3(0.5f,0.5f,0.5f));
+    shader.use();
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); // Draw using indices
     glBindVertexArray(0);

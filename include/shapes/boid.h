@@ -40,11 +40,11 @@ class Boid {
 public:
     Boid(glm::vec3 start_pos, const BoidParams& params);
 
-    bool act(glm::vec3 goal_pos, std::vector<Box> obstacles, glm::vec3 flock_center, std::vector<Boid>& boids);
+    bool act(glm::vec3 goal_pos, std::vector<Obstacle*> obstacles, glm::vec3 flock_center, std::vector<Boid>& boids);
     void draw(Shader& shader) const;
     glm::vec3 getPos() const { return position; };
     std::vector<glm::vec3> directions_from_view_angle(float angle);
-    void avoidObstacles(std::vector<Box> boxes, std::vector<Boid> boids);
+    void avoidObstacles(std::vector<Obstacle*> boxes, std::vector<Boid> boids);
 
     void drawLine(glm::vec3 start, glm::vec3 end);
 

@@ -96,8 +96,8 @@ int main() {
     Player player(0.15f, glm::vec3(100.0f,0.0f,0.0f));
 
 
-    int worldSize = 50;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(0,1,worldSize);
+    int worldSize = 200;
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>> box_map = generateRandomBoxes(20000,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
     generateRandomBoids(boid_map, 0, worldSize, box_map, redBoidParams);
     generateRandomBoids(boid_map, 0, worldSize, box_map, greenBoidParams);
@@ -113,7 +113,7 @@ int main() {
     Shader textureShader("../shaders/boid.vs", "../shaders/boid.fs");
     Shader brightShader("../shaders/1.colors.vs", "../shaders/1.colors.fs");
 
-    Space space(500.0f, 100.0f, 2000, 500, player.getPos());
+    Space space(500.0f, 100.0f, 2000, 500, player.getPos(), box_map);
 
     Planet sun(5.0f, glm::vec3(0.0f,0.0f,0.0f), 0.5f);
 
@@ -190,7 +190,7 @@ int main() {
           }
 
           glm::vec3 cell_flock = flock_map[cell];
-          std::vector<Box> cell_boxes = box_map[cell];
+          std::vector<Obstacle*> cell_boxes = box_map[cell];
 
           for (size_t i = 0; i < boids.size(); i++) {
             if(!boids[i].act(player.getPos(),
@@ -226,9 +226,9 @@ int main() {
         lightingShader.setVec3("lightColor",  1.0f, 1.0f, 0.75f);
 
         for (const auto& [cell, boxes] : box_map) {
-          for (const Box& box : boxes) {
-            box.draw(lightingShader);
-            if(box.contains(player.getPos())){
+          for (const Obstacle* box : boxes) {
+            box->draw(lightingShader);
+            if(box->contains(player.getPos())){
               playSound(explosion);
               game_over = true;
             }

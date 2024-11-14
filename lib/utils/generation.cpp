@@ -19,7 +19,7 @@ std::tuple<int, int, int> positionToCell(const glm::vec3& pos) {
     return std::make_tuple(cellX, cellY, cellZ);
 }
 
-void drawChunkBorders(const std::unordered_map<std::tuple<int, int, int>, std::vector<Box>>& box_map) {
+void drawChunkBorders(const std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle>>& box_map) {
     // Define the half size of a cell
     float halfCellSize = CELL_SIZE / 2.0f;
 
@@ -65,8 +65,8 @@ void drawChunkBorders(const std::unordered_map<std::tuple<int, int, int>, std::v
 }
 
 
-glm::vec3 getRandomPointOutsideBoxes(
-    std::unordered_map<std::tuple<int,int,int>, std::vector<Box>>& box_map,
+glm::vec3 getRandomPointOutsideObstacles(
+    std::unordered_map<std::tuple<int,int,int>, std::vector<Obstacle*>>& box_map,
     float maxPosition,
     float minDistance = 0.5f) {
     std::random_device rd;
@@ -81,17 +81,17 @@ glm::vec3 getRandomPointOutsideBoxes(
         randomPoint = glm::vec3(posDist(gen), posDist(gen), posDist(gen));
         isValid = true;
 
-        std::vector<Box>& boxes = box_map[positionToCell(randomPoint)];
+        std::vector<Obstacle*>& boxes = box_map[positionToCell(randomPoint)];
 
         // Check the point against each box to ensure it’s outside by at least minDistance
-        for (const Box& box : boxes) {
-            glm::vec3 boxMin(box.getX() - box.getWidth() / 2 - minDistance,
-                             box.getY() - box.getHeight() / 2 - minDistance,
-                             box.getZ() - box.getDepth() / 2 - minDistance);
+        for (const Obstacle* box : boxes) {
+            glm::vec3 boxMin(box->getX() - box->getWidth() / 2 - minDistance,
+                             box->getY() - box->getHeight() / 2 - minDistance,
+                             box->getZ() - box->getDepth() / 2 - minDistance);
 
-            glm::vec3 boxMax(box.getX() + box.getWidth() / 2 + minDistance,
-                             box.getY() + box.getHeight() / 2 + minDistance,
-                             box.getZ() + box.getDepth() / 2 + minDistance);
+            glm::vec3 boxMax(box->getX() + box->getWidth() / 2 + minDistance,
+                             box->getY() + box->getHeight() / 2 + minDistance,
+                             box->getZ() + box->getDepth() / 2 + minDistance);
 
             // Check if the point is within the box bounds extended by minDistance
             if (randomPoint.x >= boxMin.x && randomPoint.x <= boxMax.x &&
@@ -107,22 +107,21 @@ glm::vec3 getRandomPointOutsideBoxes(
 }
 
 
-
-std::unordered_map<std::tuple<int,int,int>, std::vector<Box>> generateRandomBoxes(
-    int numBoxes, float maxSize, float maxPosition) {
-    std::unordered_map<std::tuple<int,int,int>, std::vector<Box>> result;
+std::unordered_map<std::tuple<int,int,int>, std::vector<Obstacle*>> generateRandomBoxes(
+    int numObstaclees, float maxSize, float maxPosition) {
+    std::unordered_map<std::tuple<int,int,int>, std::vector<Obstacle*>> result;
 
     // Seed the random number generator
     std::random_device rd;
     std::mt19937 gen(rd());
 
     // Define the random distributions
-    std::uniform_real_distribution<float> sizeDist(0.5f, maxSize);        // Box size range
+    std::uniform_real_distribution<float> sizeDist(0.5f, maxSize);        // Obstacle size range
     std::uniform_real_distribution<float> posDist(-maxPosition, maxPosition); // Position range
     std::uniform_real_distribution<float> colorDist(0.0f, 1.0f);
 
     // Create random boxes
-    for (int i = 0; i < numBoxes; ++i) {
+    for (int i = 0; i < numObstaclees; ++i) {
         float width = sizeDist(gen);
         float height = sizeDist(gen);
         float depth = sizeDist(gen);
@@ -137,7 +136,7 @@ std::unordered_map<std::tuple<int,int,int>, std::vector<Box>> generateRandomBoxe
         float g = colorDist(gen);
         float b = colorDist(gen);
 
-        result[cellKey].push_back(Box(width, height, depth, x, y, z, r, g, b));
+        result[cellKey].push_back(new Box(width, height, depth, x, y, z, r, g, b));
     }
 
     return result;
@@ -147,21 +146,17 @@ void generateRandomBoids(
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>>& result,
     int count,
     int maxDistance,
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>>& box_map,
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>>& box_map,
     BoidParams& params){
 
     if(count <= 0)
       return;
     std::vector<GLfloat> unrotatedVertices;
     std::vector<GLuint> indices;
-    //std::string modelPath = "../assets/squid.obj";
     float scale = params.size * 0.1f;
-    //int vertexSampleRate = 1000;
-    //loadModel(unrotatedVertices, indices, modelPath, scale, vertexSampleRate);
-    //loadBoid(unrotatedVertices, indices, scale);
 
     for (int i = 0; i < count; ++i) {
-      glm::vec3 randomPosition = getRandomPointOutsideBoxes(box_map, maxDistance);
+      glm::vec3 randomPosition = getRandomPointOutsideObstacles(box_map, maxDistance);
 
       result[positionToCell(randomPosition)].push_back(Boid(randomPosition, params));
     }

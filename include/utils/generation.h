@@ -27,23 +27,23 @@ namespace std {
 
 std::tuple<int, int, int> positionToCell(const glm::vec3& pos);
 
-void drawChunkBorders(const std::unordered_map<std::tuple<int, int, int>, std::vector<Box>>& box_map);
+void drawChunkBorders(const std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle>>& box_map);
 
 
 
-glm::vec3 getRandomPointOutsideBoxes(
-    std::unordered_map<std::tuple<int,int,int>, std::vector<Box>>& box_map,
+glm::vec3 getRandomPointOutsideObstacles(
+    std::unordered_map<std::tuple<int,int,int>, std::vector<Obstacle*>>& box_map,
     float maxPosition,
     float minDistance);
 
-std::unordered_map<std::tuple<int,int,int>, std::vector<Box>> generateRandomBoxes(
-    int numBoxes, float maxSize, float maxPosition);
+std::unordered_map<std::tuple<int,int,int>, std::vector<Obstacle*>> generateRandomBoxes(
+    int numObstaclees, float maxSize, float maxPosition);
 
 void generateRandomBoids(
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>>& result,
     int count,
     int maxDistance,
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Box>>& box_map,
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>>& box_map,
     BoidParams& params);
 
 std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>> recalculateCells(
