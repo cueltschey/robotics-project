@@ -31,9 +31,11 @@ public:
 
     void shoot(std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map);
 
+    void requestOrbit(glm::vec3 planetPos, float orbitThreshold);
+
+
 
 private:
-    std::tuple<int, int, int> positionToCell(const glm::vec3& pos);
     void buildVertices();
     glm::vec3 rotateVertex(const glm::vec3& vertex, const glm::vec3& direction);
     void drawLine(glm::vec3 start, glm::vec3 end);
@@ -59,6 +61,11 @@ private:
     std::vector<Bullet> bullets;
 
     int since_last_shot = 0;
+
+    bool isOrbiting = false;
+    glm::vec3 orbitPlanetPos;
+    float orbitPlanetGravity = 0.0f;
+    float orbitRange = 0.0f;
 
 
 

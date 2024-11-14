@@ -96,7 +96,7 @@ int main() {
     Player player(0.15f, glm::vec3(100.0f,0.0f,0.0f));
 
 
-    int worldSize = 200;
+    int worldSize = 50;
     std::unordered_map<std::tuple<int, int, int>, std::vector<Box>> box_map = generateRandomBoxes(0,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
     generateRandomBoids(boid_map, 0, worldSize, box_map, redBoidParams);
@@ -113,7 +113,7 @@ int main() {
     Shader textureShader("../shaders/boid.vs", "../shaders/boid.fs");
     Shader brightShader("../shaders/1.colors.vs", "../shaders/1.colors.fs");
 
-    Space space(200.0f, 100.0f, 1000, 2000, player.getPos());
+    Space space(500.0f, 100.0f, 2000, 500, player.getPos());
 
     Planet sun(5.0f, glm::vec3(0.0f,0.0f,0.0f), 1.0f);
 
@@ -128,7 +128,7 @@ int main() {
     planets.push_back(earth);
     planets.push_back(moon);
 
-    Timer t;
+    Timer timer;
 
 
     glEnable(GL_DEPTH_TEST);
@@ -137,7 +137,7 @@ int main() {
 
     bool game_over = false;
     while (!glfwWindowShouldClose(window) && !game_over) {
-        t.start();
+        timer.start();
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -156,7 +156,7 @@ int main() {
 
         glm::mat4 projection = glm::perspective(
             glm::radians(45.0f),
-            (float)width / (float)height, 0.1f, 800.0f);
+            (float)width / (float)height, 0.1f, 1000.0f);
         view = glm::lookAt(cameraPos - glm::vec3(0.0f,0.2f,0.0f), cameraPos + cameraFront, cameraUp);
         glm::mat4 model = glm::mat4(1.0f);
         glLoadMatrixf(glm::value_ptr(view));
@@ -184,7 +184,6 @@ int main() {
           if(player_cell == cell){
             for(Boid& b : boids){
               if(b.contains(player.getPos())){
-                playSound(explosion);
                 game_over = true;
               }
             }
@@ -198,7 +197,6 @@ int main() {
                   cell_boxes,
                   cell_flock,
                   boids)){
-              std::cout << "Alert: boid crashed!!" << std::endl;
               boids.erase(boids.begin() + i);
             }
             boids[i].draw(brightShader);
@@ -247,14 +245,16 @@ int main() {
           }
 
           brightShader.use();
+          /*
           player.applyForce(
               glm::normalize(planet.getPos() - player.getPos()),
               glm::clamp(planet.gravity / (glm::distance(planet.getPos(), player.getPos()) * 0.4f), 0.0f, 1.0f)
               );
+          */
+          player.requestOrbit(planet.getPos(), planet.gravity * 20.0f);
           lightingShader.use();
           planet.draw();
           if(planet.contains(player.getPos())){
-            playSound(explosion);
             game_over = true;
           }
           last = &planet;
@@ -264,9 +264,10 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
         if(game_over){
+          playSound(explosion);
           std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-        //t.stop();
+        timer.record();
     }
 
 
@@ -275,6 +276,7 @@ int main() {
     Mix_CloseAudio();
     Mix_Quit();
     SDL_Quit();
+    std::cout << std::endl << "Quitting..." << std::endl;
     return 0;
 }
 
