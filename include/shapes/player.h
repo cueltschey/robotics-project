@@ -33,6 +33,8 @@ public:
 
     void requestOrbit(glm::vec3 planetPos, float orbitThreshold);
 
+    float speed = 0.0f;
+
 
 
 private:
@@ -41,10 +43,8 @@ private:
     void drawLine(glm::vec3 start, glm::vec3 end);
 
 
-    mutable std::vector<Sphere> trail;
     float maxSpeed = 10.1f;
 
-    float speed = 5.5f;
     float size;
     glm::vec3 position;
     glm::mat4 modelMatrix;
@@ -66,6 +66,7 @@ private:
     glm::vec3 orbitPlanetPos;
     float orbitPlanetGravity = 0.0f;
     float orbitRange = 0.0f;
+    glm::vec3 toOrbitPlanet;
 
 
 

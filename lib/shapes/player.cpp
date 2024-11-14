@@ -112,10 +112,6 @@ void Player::draw(
     std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map,
     Shader& shader, int frames_since_shot, int shot_cooldown) {
     shader.use();
-    if(trail.size() >= 40){
-      trail.erase(trail.begin());
-    }
-    trail.push_back(Sphere(0.01f, position, 0.0f));
 
     shader.setVec3("objectColor", glm::vec3(
           1.0f - (frames_since_shot / shot_cooldown),
@@ -135,9 +131,6 @@ void Player::draw(
     thruster.draw();
 
     shader.setVec3("objectColor", glm::vec3(1.0f,0.5f,0.0f));
-    for(Sphere s : trail){
-      s.draw();
-    }
 
 
     for(size_t i = 0; i < bullets.size(); i++){
@@ -155,29 +148,16 @@ void Player::draw(
 
 void Player::updatePos(glm::vec3 cameraFront) {
     if (isOrbiting) {
-        // TODO: make polar coordinates for the player position relative to the planet
-        //
-        // TODO: update player pos to be its previous distance and angle from planet (in case it moved)
-        //
+        drawLine(position, orbitPlanetPos);
 
-        // Calculate the current distance and angle from the planet
-        float distanceToPlanet = glm::distance(orbitPlanetPos, position);
-        glm::vec3 toPlanet = glm::normalize(orbitPlanetPos - position);
-
-        // Calculate the current angle around the planet in 2D (XZ plane)
-        float angle = atan2(position.z - orbitPlanetPos.z, position.x - orbitPlanetPos.x);
-
-        // Update the angle and position based on player's movement direction and speed
-        angle += direction.x * std::min(speed, maxSpeed) / distanceToPlanet;  // Adjust angle based on horizontal movement
-        distanceToPlanet += direction.z * std::min(speed, maxSpeed);  // Adjust distance based on forward/backward movement
-
-        // Calculate new position in 3D space relative to the planet center
-        position.x = orbitPlanetPos.x + cos(angle) * distanceToPlanet;
-        position.z = orbitPlanetPos.z + sin(angle) * distanceToPlanet;
+        position = orbitPlanetPos + toOrbitPlanet * orbitRange;
 
         position += direction * std::min(speed, maxSpeed);
 
+        // update planet reference variables
         orbitRange = glm::distance(orbitPlanetPos, position);
+        toOrbitPlanet = glm::normalize(position - orbitPlanetPos);
+        speed *= 0.90;
         if(orbitRange >= orbitPlanetGravity){
           isOrbiting = false;
         }
@@ -219,9 +199,12 @@ void Player::requestOrbit(glm::vec3 planetPos, float orbitThreshold) {
     float range = glm::distance(planetPos, position);
 
     if (range < orbitThreshold) {
-        isOrbiting = true;
+        if(!isOrbiting){
+          orbitPlanetGravity = orbitThreshold;
+          orbitRange = range;
+          toOrbitPlanet = glm::normalize(position - planetPos);
+          isOrbiting = true;
+        }
         orbitPlanetPos = planetPos;
-        orbitPlanetGravity = orbitThreshold;
-        orbitRange = range;
     }
 }

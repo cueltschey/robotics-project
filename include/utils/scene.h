@@ -96,6 +96,8 @@ void processInput(GLFWwindow *window, Player& player,
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         cameraSpeed = 10.5f * deltaTime;
 
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+        player.speed = 0.0f;
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         player.applyForce(cameraFront, cameraSpeed);

@@ -115,7 +115,7 @@ int main() {
 
     Space space(500.0f, 100.0f, 2000, 500, player.getPos());
 
-    Planet sun(5.0f, glm::vec3(0.0f,0.0f,0.0f), 1.0f);
+    Planet sun(5.0f, glm::vec3(0.0f,0.0f,0.0f), 0.5f);
 
     Planet earth(2.0f, glm::vec3(50.0f,0.0f,0.0f), 0.5f);
     Planet moon(0.5f, glm::vec3(0.0f,0.0f,0.0f), 0.1f);
@@ -212,8 +212,6 @@ int main() {
 
         space.render(brightShader, textureShader);
 
-        player.updatePos(cameraFront);
-        player.draw(boid_map, brightShader, frames_since_shot, shot_cooldown);
 
         brightShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
         sun.draw();
@@ -259,6 +257,12 @@ int main() {
           }
           last = &planet;
         }
+
+
+        brightShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
+        brightShader.use();
+        player.updatePos(cameraFront);
+        player.draw(boid_map, brightShader, frames_since_shot, shot_cooldown);
 
         processInput(window, player, boid_map);
         glfwSwapBuffers(window);
