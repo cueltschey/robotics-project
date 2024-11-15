@@ -12,33 +12,10 @@
 
 #include "utils/m_shader.h"
 
-struct BoidParams {
-    // Colors
-    float boidR, boidG, boidB;
-    float trailR, trailG, trailB;
-    
-
-    // Ray parameters
-    float rayStepSize = 0.0001f;
-    float rayMaxLength = 0.001f;
-
-    // Force coefficients
-    float forceApplicationCoefficient = 0.75f;
-    float speedIncreaseCoefficient = 0.00003f;
-
-    // Obstacle avoidance parameters
-    float obstacleRepelForce = 7.0f;
-    float obstacleRepelDecay = 8.0f;
-
-    // Goal attraction
-    float goalAttraction = 1.0f;
-    float maxBoidSpeed = 1.0f;
-    float size = 0.1f;
-};
 
 class Boid {
 public:
-    Boid(glm::vec3 start_pos, const BoidParams& params);
+    Boid(long int frame, glm::vec3 start_pos);
 
     bool act(glm::vec3 goal_pos, std::vector<Obstacle*> obstacles, glm::vec3 flock_center, std::vector<Boid>& boids);
     void draw(Shader& shader) const;
@@ -50,7 +27,6 @@ public:
 
     bool contains(glm::vec3 point) const;
 
-    glm::mat4 getModelMatrix() const { return modelMatrix; };
     void explode() {
       dead = true;
     };
@@ -59,26 +35,6 @@ public:
     void applyFlockForces(std::vector<Boid>& boids);
 
 private:
-
-    float boidR, boidG, boidB;
-    float trailR, trailG, trailB;
-
-    float rayStepSize = 0.0001f;
-    float rayMaxLength = 0.001f;
-
-    float forceApplicationCoefficient = 0.75f;
-    float speedIncreaseCoefficient = 0.00003f;
-
-    float obstacleRepelForce = 7.0f;
-    float obstacleRepelDecay = 8.0f;
-    float boidRepelForce = 2.0f;
-    float boidRepelDecay = 15.0f;
-
-    float goalAttraction = 1.0f;
-    float flockAttraction = 0.7f;
-
-    float maxBoidSpeed = 1.0f;
-    float maxDetectionRange = 30.0f;
 
     void buildVertices();
     void applyForce(glm::vec3 force_direction, float strength);
@@ -91,10 +47,6 @@ private:
     float speed = 0.0f;
 
     int trailLength = 5;
-    float size;
-    glm::vec3 position;
-    glm::mat4 modelMatrix;
-    glm::vec3 direction;
     std::vector<glm::vec3> directions;
     std::vector<glm::vec3> normals;
 
@@ -102,6 +54,35 @@ private:
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
     GLuint VAO, VBO, EBO;
+
+    // Colors
+    float boidR, boidG, boidB;
+
+    // Ray parameters
+    float rayStepSize = 0.0001f;
+    float rayMaxLength = 0.001f;
+
+    // Force coefficients
+    float forceApplicationCoefficient = 0.75f;
+    float speedIncreaseCoefficient = 0.002f;
+
+    // Obstacle avoidance parameters
+    float obstacleRepelForce = 7.0f;
+    float obstacleRepelDecay = 8.0f;
+    float boidRepelForce = 2.0f;
+    float boidRepelDecay = 15.0f;
+
+    // Goal attraction
+    float goalAttraction = 1.2f;
+    float flockAttraction = 1.0f; //0.7f;
+
+    float size = 0.1f;
+
+    float maxDetectionRange = 30.0f;
+    float maxBoidSpeed = 1.0f;
+
+    glm::vec3 direction;
+    glm::vec3 position;
 
 };
 

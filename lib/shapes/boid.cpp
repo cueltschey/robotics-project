@@ -3,21 +3,33 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "utils/generation.h"
 
 
-Boid::Boid(glm::vec3 start_pos, const BoidParams& params)
-    : size(params.size), position(start_pos), direction(1.0f, 0.0f, 0.0f),
-      boidR(params.boidR), boidG(params.boidG), boidB(params.boidB),
-      trailR(params.trailR), trailG(params.trailG), trailB(params.trailB),
-      rayStepSize(params.rayStepSize), rayMaxLength(params.rayMaxLength),
-      forceApplicationCoefficient(params.forceApplicationCoefficient),
-      speedIncreaseCoefficient(params.speedIncreaseCoefficient),
-      obstacleRepelForce(params.obstacleRepelForce),
-      obstacleRepelDecay(params.obstacleRepelDecay),
-      goalAttraction(params.goalAttraction) {
+Boid::Boid(long int frame, glm::vec3 start_pos){
 
-    modelMatrix = glm::mat4(1.0f);
+
     directions = directions_from_view_angle(180.0f);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> colorDist(0.0f, 1.0f);
+
+    boidR = colorDist(gen);
+    boidG = colorDist(gen);
+    boidB = colorDist(gen);
+
+    // Increasing aggressiveness over time
+    float aggressionFactor = 1.0f + (frame / 100000.0f); // Scales up with frame count
+
+    speedIncreaseCoefficient *= aggressionFactor;
+    goalAttraction *= aggressionFactor;
+    flockAttraction *= aggressionFactor;
+
+    obstacleRepelForce *= aggressionFactor;
+    boidRepelForce *= aggressionFactor;
+
+    position = start_pos;
+
     buildVertices();
 }
 
@@ -227,7 +239,7 @@ void Boid::avoidObstacles(std::vector<Obstacle*> boxes, std::vector<Boid> boids)
 
         if (collisionObstacle != boxes.end()) {
             float rayLen = glm::distance(rayPosition, position);
-            if(rayLen <= 0.01f){
+            if(rayLen <= 0.1f){
               dead = true;
             }
             applyForce(- glm::normalize(rayPosition - position) 

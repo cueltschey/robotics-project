@@ -44,10 +44,12 @@ void generateRandomBoids(
     int count,
     int maxDistance,
     std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>>& box_map,
-    BoidParams& params);
+    long int frame, glm::vec3 playerPos);
 
 std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>> recalculateCells(
-    std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>> old_map);
+    std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>> old_map, int& num_boids);
+
+bool shouldSpawnBoid(long frame);
 
 
 #endif // !GENERATION_H

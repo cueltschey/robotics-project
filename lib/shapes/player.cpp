@@ -118,7 +118,7 @@ void Player::draw(
           (frames_since_shot / shot_cooldown),0.0f));
     aimer.draw();
 
-    shader.setVec3("objectColor", glm::vec3(0.5f,0.4f,0.4f));
+    shader.setVec3("objectColor", glm::vec3(0.2f,0.2f,0.2f));
 
     glBindVertexArray(VAO);
 
@@ -148,8 +148,6 @@ void Player::draw(
 
 void Player::updatePos(glm::vec3 cameraFront) {
     if (isOrbiting) {
-        drawLine(position, orbitPlanetPos);
-
         position = orbitPlanetPos + toOrbitPlanet * orbitRange;
 
         position += direction * std::min(speed, maxSpeed);
@@ -181,7 +179,6 @@ void Player::applyForce(glm::vec3 force_direction, float strength){
     speed *= 0.95;
     speed += force_magnitude * 0.1f;
     speed = glm::clamp(speed, 0.0f, 1.0f);
-    drawLine(position,  position + normalized_force * strength * 10.0f);
 }
 
 void Player::drawLine(glm::vec3 start, glm::vec3 end){

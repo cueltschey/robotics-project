@@ -46,7 +46,7 @@ Bullet::Bullet(glm::vec3 startPos, glm::vec3 cameraFront,
         }
 
         for (Boid& boid : boids) {
-            if (glm::distance(boid.getPos(), position) < 0.1f){
+            if (glm::distance(boid.getPos(), position) < 0.01f){
                 boid.explode();
                 gone = true;
                 break;
@@ -71,7 +71,7 @@ void Bullet::draw(Shader& shader){
     if(colorFade <= 0.0f){
       gone = true;
     }
-    shader.setVec3("objectColor", colorFade, colorFade, 0.0f);
+    shader.setVec3("objectColor", 0.0f, colorFade, colorFade);
     for(int i = 0; i < trail.size() - 2; i++){
       drawLine(trail[i], trail[i+ 1]);
     }

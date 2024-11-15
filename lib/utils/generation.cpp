@@ -147,31 +147,42 @@ void generateRandomBoids(
     int count,
     int maxDistance,
     std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>>& box_map,
-    BoidParams& params){
+    long int frame, glm::vec3 playerPos
+    ){
 
     if(count <= 0)
       return;
-    std::vector<GLfloat> unrotatedVertices;
-    std::vector<GLuint> indices;
-    float scale = params.size * 0.1f;
 
     for (int i = 0; i < count; ++i) {
-      glm::vec3 randomPosition = getRandomPointOutsideObstacles(box_map, maxDistance);
-
-      result[positionToCell(randomPosition)].push_back(Boid(randomPosition, params));
+      glm::vec3 randomPos = playerPos + getRandomPointOutsideObstacles(box_map, maxDistance);
+      result[positionToCell(randomPos)].push_back(
+          Boid(frame, randomPos)
+          );
     }
 }
 
 std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>> recalculateCells(
-    std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>> old_map
+    std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>> old_map, int& num_boids
     ){
 
     std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>> new_map;
+    num_boids = 0;
     for(auto& [cell, boids] : old_map){
       for(Boid& boid : boids){
         new_map[positionToCell(boid.getPos())].push_back(boid);
+        num_boids++;
       }
     }
     return new_map;
 }
 
+bool shouldSpawnBoid(long frame) {
+    // Base probability of spawning, which increases with the frame count
+    float spawnProbability = std::min(0.01f + (frame / 100000.0f), 1.0f); // Caps at 100% chance
+
+    // Generate a random float between 0 and 1
+    float randomValue = static_cast<float>(rand()) / RAND_MAX;
+
+    // Spawn a boid if the random value is below the calculated probability
+    return randomValue < spawnProbability;
+}

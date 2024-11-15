@@ -34,49 +34,6 @@
 #include "algorithm/flock.h"
 
 
-// Red Boid parameters
-BoidParams redBoidParams = {
-    1.0f, 0.0f, 0.0f,    // boid color: red
-    1.0f, 0.5f, 0.5f,    // trail color: light red
-    0.003f,             // rayStepSize
-    0.03f,              // rayMaxLength
-    0.85f,               // forceApplicationCoefficient
-    0.002f,              // speedIncreaseCoefficient
-    10.0f,                // obstacleRepelForce
-    3.0f,               // obstacleRepelDecay
-    2.0f,                // goalAttraction
-    0.2f                 // size
-};
-
-// Blue Boid parameters
-BoidParams blueBoidParams = {
-    0.0f, 0.0f, 1.0f,    // boid color: blue
-    0.3f, 0.3f, 1.0f,    // trail color: light blue
-    0.003f,            // rayStepSize
-    0.03f,             // rayMaxLength
-    0.7f,                // forceApplicationCoefficient
-    0.002f,              // speedIncreaseCoefficient
-    10.5f,               // obstacleRepelForce
-    3.5f,                // obstacleRepelDecay
-    2.0f,                // goalAttraction
-    0.2f                 // size
-};
-
-// Green Boid parameters
-BoidParams greenBoidParams = {
-    0.0f, 1.0f, 0.0f,    // boid color: green
-    0.3f, 1.0f, 0.3f,    // trail color: light green
-    0.002f,            // rayStepSize
-    0.03f,             // rayMaxLength
-    0.8f,                // forceApplicationCoefficient
-    0.003f,              // speedIncreaseCoefficient
-    10.8f,                // obstacleRepelForce
-    4.2f,                // obstacleRepelDecay
-    2.0f,                // goalAttraction
-    0.07f                // size
-};
-
-
 
 int main() {
     std::optional<GLFWwindow*> opt_window = init_scene();
@@ -96,12 +53,12 @@ int main() {
     Player player(0.15f, glm::vec3(100.0f,0.0f,0.0f));
 
 
-    int worldSize = 200;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>> box_map = generateRandomBoxes(20000,1,worldSize);
+    int worldSize = 20;
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>> box_map = generateRandomBoxes(20,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
-    generateRandomBoids(boid_map, 0, worldSize, box_map, redBoidParams);
-    generateRandomBoids(boid_map, 0, worldSize, box_map, greenBoidParams);
-    generateRandomBoids(boid_map, 0, worldSize, box_map, blueBoidParams);
+    generateRandomBoids(boid_map, 20, worldSize, box_map, 0, player.getPos());
+    generateRandomBoids(boid_map, 20, worldSize, box_map, 0, player.getPos());
+    generateRandomBoids(boid_map, 20, worldSize, box_map, 0, player.getPos());
 
     std::vector<Bullet> bullets;
     //GLuint boidTexture = loadTexture("../assets/boid.jpg");
@@ -113,15 +70,15 @@ int main() {
     Shader textureShader("../shaders/boid.vs", "../shaders/boid.fs");
     Shader brightShader("../shaders/1.colors.vs", "../shaders/1.colors.fs");
 
-    Space space(500.0f, 100.0f, 2000, 500, player.getPos(), box_map);
+    Space space(200.0f, 100.0f, 1000, 100, player.getPos(), box_map);
 
-    Planet sun(5.0f, glm::vec3(0.0f,0.0f,0.0f), 0.5f);
+    Planet sun(30.0f, glm::vec3(0.0f,0.0f,0.0f), 2.5f);
 
-    Planet earth(2.0f, glm::vec3(50.0f,0.0f,0.0f), 0.5f);
-    Planet moon(0.5f, glm::vec3(0.0f,0.0f,0.0f), 0.1f);
+    Planet earth(20.0f, glm::vec3(0.0f,0.0f,0.0f), 2.5f);
+    Planet moon(2.0f, glm::vec3(0.0f,0.0f,0.0f), 0.1f);
 
-    earth.orbit(50.0f, 0.1f);
-    moon.orbit(10.0f, 0.5f);
+    earth.orbit(200.0f, 0.01f);
+    moon.orbit(10.0f, 0.05f);
 
     std::vector<Planet> planets;
     planets.push_back(sun);
@@ -133,15 +90,22 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
+    int num_boids = 0;
+
 
 
     bool game_over = false;
     while (!glfwWindowShouldClose(window) && !game_over) {
         timer.start();
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        boid_map = recalculateCells(boid_map);
+
+        if(shouldSpawnBoid(timer.get_frame()) && num_boids < 200){
+          generateRandomBoids(boid_map, 1, 20.0f, box_map, timer.get_frame(), player.getPos());
+        }
+
+        boid_map = recalculateCells(boid_map, num_boids);
 
 
 

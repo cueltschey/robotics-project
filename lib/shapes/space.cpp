@@ -35,8 +35,8 @@ Space::Space(float stars_radius_,
 
 // Render the background sphere
 void Space::render(Shader& lightShader, Shader& textureShader){
-  lightShader.setVec3("objectColor", glm::vec3(1.0f,1.0f,1.0f));
   lightShader.use();
+  lightShader.setVec3("objectColor", glm::vec3(1.0f,1.0f,1.0f));
   for(Sphere& star : stars){
     star.draw();
   }

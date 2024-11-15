@@ -21,6 +21,8 @@ public:
         start_time = end_time;
     }
 
+    long int get_frame() const { return num_frames; };
+
     double game_time = 0.0f;
     double frame_rate = 0.0f;
     long int num_frames = 0;
