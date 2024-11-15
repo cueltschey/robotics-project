@@ -69,6 +69,7 @@ int main() {
     Shader lightingShader("../shaders/shadow.vs", "../shaders/shadow.fs");
     Shader textureShader("../shaders/boid.vs", "../shaders/boid.fs");
     Shader brightShader("../shaders/1.colors.vs", "../shaders/1.colors.fs");
+    //Shader sunShader("../shaders/sun.vs", "../shaders/sun.fs");
 
     Space space(200.0f, 100.0f, 1000, 100, player.getPos(), box_map);
 
@@ -106,7 +107,6 @@ int main() {
         }
 
         boid_map = recalculateCells(boid_map, num_boids);
-
 
 
         float currentFrame = glfwGetTime();
