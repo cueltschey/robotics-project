@@ -32,6 +32,7 @@
 #include "utils/generation.h"
 #include "utils/sound.h"
 #include "algorithm/flock.h"
+#include "shapes/collectible.h"
 
 
 
@@ -53,23 +54,22 @@ int main() {
     Player player(0.15f, glm::vec3(100.0f,0.0f,0.0f));
 
 
-    int worldSize = 20;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>> box_map = generateRandomBoxes(20,1,worldSize);
+    int worldSize = 50;
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>> box_map = generateRandomBoxes(10,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
     generateRandomBoids(boid_map, 20, worldSize, box_map, 0, player.getPos());
     generateRandomBoids(boid_map, 20, worldSize, box_map, 0, player.getPos());
     generateRandomBoids(boid_map, 20, worldSize, box_map, 0, player.getPos());
 
     std::vector<Bullet> bullets;
-    //GLuint boidTexture = loadTexture("../assets/boid.jpg");
-    //GLuint playerTexture = loadTexture("../assets/player.jpg");
+    std::vector<Collectible> collectibles;
     GLuint asteroidTexture = loadTexture("../assets/asteroid.jpg");
+    GLuint sunTexture = loadTexture("../assets/sun.jpg");
 
 
     Shader lightingShader("../shaders/shadow.vs", "../shaders/shadow.fs");
-    Shader textureShader("../shaders/boid.vs", "../shaders/boid.fs");
+    Shader textureShader("../shaders/texture.vs", "../shaders/texture.fs");
     Shader brightShader("../shaders/1.colors.vs", "../shaders/1.colors.fs");
-    //Shader sunShader("../shaders/sun.vs", "../shaders/sun.fs");
 
     Space space(200.0f, 100.0f, 1000, 100, player.getPos(), box_map);
 
@@ -161,9 +161,20 @@ int main() {
                   cell_boxes,
                   cell_flock,
                   boids)){
+              if(rand() % 10 == 0){
+                collectibles.push_back(Collectible(0.05f, boids[i].getPos()));
+              }
               boids.erase(boids.begin() + i);
             }
             boids[i].draw(brightShader);
+          }
+        }
+
+        for(Collectible& c : collectibles){
+          c.draw(brightShader);
+          if(c.contains(player.getPos())){
+            benefit_t collected_benefit = c.collect();
+            player.applyBenefit(collected_benefit);
           }
         }
 
@@ -177,7 +188,8 @@ int main() {
         space.render(brightShader, textureShader);
 
 
-        brightShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);
+        textureShader.use();
+        glBindTexture(GL_TEXTURE_2D, sunTexture);
         sun.draw();
 
         lightingShader.use();
@@ -236,6 +248,7 @@ int main() {
           std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         timer.record();
+
     }
 
 

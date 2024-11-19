@@ -159,7 +159,7 @@ vec4 spline (float value, vec4 cp [SPLINELENGTH])
 #define BUMP_AMPLITUDE (20.0/100.0)
 #define BUMP_FREQUENCY (5.0)
 #define PI 3.14159
-in FragmentData
+in VertexData
 {
     vec3 normal;
     vec4 colour;
@@ -167,7 +167,6 @@ in FragmentData
     vec4 EyeSpaceLightPosition;     
     vec4 EyeSpacePosition;          
     vec4 EyeSpaceObjectPosition;
-    vec4 WorldSpaceObjectPosition;
     vec4 ShadowCoord;   
     float height;
     float terrx;

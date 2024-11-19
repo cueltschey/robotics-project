@@ -189,7 +189,7 @@ void Player::drawLine(glm::vec3 start, glm::vec3 end){
 }
 
 void Player::shoot(std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map){
-    bullets.push_back(Bullet(position, glm::normalize(aimer.getPos() - position), boid_map));
+    bullets.push_back(Bullet(position, glm::normalize(aimer.getPos() - position), boid_map, shotRange, shotAccuracy));
 }
 
 void Player::requestOrbit(glm::vec3 planetPos, float orbitThreshold) {
@@ -204,4 +204,23 @@ void Player::requestOrbit(glm::vec3 planetPos, float orbitThreshold) {
         }
         orbitPlanetPos = planetPos;
     }
+}
+
+void Player::applyBenefit(benefit_t collected_benefit){
+  switch (collected_benefit) {
+    case SPEED:
+      maxSpeed += 0.5f;
+      break;
+    case RANGE:
+      shotRange += 1;
+      break;
+    case HEALTH:
+      size += 0.01f;
+      break;
+    case ACCURACY:
+      shotAccuracy += 0.1f;
+      break;
+    default:
+      break;
+  }
 }

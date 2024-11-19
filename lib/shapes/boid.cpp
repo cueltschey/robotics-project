@@ -19,7 +19,7 @@ Boid::Boid(long int frame, glm::vec3 start_pos){
     boidB = colorDist(gen);
 
     // Increasing aggressiveness over time
-    float aggressionFactor = 1.0f + (frame / 100000.0f); // Scales up with frame count
+    float aggressionFactor = 1.0f + (frame / 10000.0f); // Scales up with frame count
 
     speedIncreaseCoefficient *= aggressionFactor;
     goalAttraction *= aggressionFactor;
@@ -140,8 +140,24 @@ bool Boid::act(glm::vec3 goal_pos, std::vector<Obstacle*> obstacles, glm::vec3 f
 
     if(glm::distance(goal_pos, position) < maxDetectionRange){
       glm::vec3 goal_direction = glm::normalize(goal_pos - position);
-      // TODO: check if there is a line of sight to the goal_pos
-      applyForce(goal_direction, goalAttraction);
+      // TODO: improve this line of sight code
+      glm::vec3 rayPos = position;
+      float maxRayLength = glm::distance(goal_pos, position);
+      float rayStepSize = maxRayLength / 30;
+      float clear = true;
+      if(obstacles.size() > 0){
+        for(int i = 0; i < 30; i++){
+          rayPos += goal_direction * rayStepSize;
+          for(Obstacle* obs: obstacles){
+            if(obs->contains(rayPos)){
+              clear = false;
+              break;
+            }
+          }
+        }
+      }
+      if(clear)
+        applyForce(goal_direction, goalAttraction);
     }
     position += direction * speed;
     speed *= 0.92;

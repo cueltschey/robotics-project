@@ -16,6 +16,7 @@
 #include "shapes/bullet.h"
 #include <tuple>
 #include <unordered_map>
+#include "shapes/collectible.h"
 
 class Player {
 public:
@@ -28,6 +29,7 @@ public:
     void updatePos(glm::vec3 cameraFront);
     void setSpeed(float s) {speed = s; };
     void applyForce(glm::vec3 force_direction, float strength);
+    void applyBenefit(benefit_t collected_benefit);
 
     void shoot(std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map);
 
@@ -67,6 +69,8 @@ private:
     float orbitPlanetGravity = 0.0f;
     float orbitRange = 0.0f;
     glm::vec3 toOrbitPlanet;
+    mutable int shotRange = 20;
+    mutable float shotAccuracy = 0.2f;
 
 
 

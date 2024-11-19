@@ -13,7 +13,7 @@
 class Bullet {
 public:
     Bullet(glm::vec3 startPos, glm::vec3 cameraFront,
-            std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map);
+            std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map, int shotRange, float shotAccuracy);
 
     
 
@@ -33,6 +33,7 @@ private:
     glm::vec3 direction; // Direction of the bullet (camera front)
     int maxDistance;
     std::vector<glm::vec3> trail;
+    float strength;
 };
 
 #endif

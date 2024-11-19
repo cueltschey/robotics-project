@@ -17,11 +17,10 @@ namespace std {
 
 
 Bullet::Bullet(glm::vec3 startPos, glm::vec3 cameraFront,
-        std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map)
+        std::unordered_map<std::tuple<int,int,int>, std::vector<Boid>>& boid_map, int shotRange, float shotAccuracy)
     : position(startPos), 
     direction(glm::normalize(cameraFront)), 
-    maxDistance(20)
-    {
+    maxDistance(shotRange), strength(shotAccuracy) {
       int distance = 0;
       while (distance < maxDistance && !gone) {
         trail.push_back(position);
@@ -52,7 +51,6 @@ Bullet::Bullet(glm::vec3 startPos, glm::vec3 cameraFront,
                 break;
             } else{
               glm::vec3 normalized_force = glm::normalize(boid.getPos() - position);
-              float strength = 1.0f;
               glm::vec3 force = normalized_force * strength;
               float forceApplicationCoefficient = 1.01f;
               direction += force * forceApplicationCoefficient;
