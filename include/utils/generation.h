@@ -23,7 +23,7 @@ namespace std {
     };
 }
 
-#define CELL_SIZE 2.0f
+#define CELL_SIZE 5.0f
 
 std::tuple<int, int, int> positionToCell(const glm::vec3& pos);
 

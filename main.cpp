@@ -54,8 +54,8 @@ int main() {
     Player player(0.15f, glm::vec3(100.0f,0.0f,0.0f));
 
 
-    int worldSize = 50;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>> box_map = generateRandomBoxes(10,1,worldSize);
+    int worldSize = 100;
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>> box_map = generateRandomBoxes(10000,3,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
     generateRandomBoids(boid_map, 20, worldSize, box_map, 0, player.getPos());
     generateRandomBoids(boid_map, 20, worldSize, box_map, 0, player.getPos());
@@ -71,7 +71,7 @@ int main() {
     Shader textureShader("../shaders/texture.vs", "../shaders/texture.fs");
     Shader brightShader("../shaders/1.colors.vs", "../shaders/1.colors.fs");
 
-    Space space(200.0f, 100.0f, 1000, 100, player.getPos(), box_map);
+    Space space(200.0f, 100.0f, 0, 0, player.getPos(), box_map);
 
     Planet sun(30.0f, glm::vec3(0.0f,0.0f,0.0f), 2.5f);
 
@@ -148,7 +148,7 @@ int main() {
           if(player_cell == cell){
             for(Boid& b : boids){
               if(b.contains(player.getPos())){
-                game_over = true;
+                //game_over = true;
               }
             }
           }
@@ -162,8 +162,9 @@ int main() {
                   cell_flock,
                   boids)){
               if(rand() % 10 == 0){
-                collectibles.push_back(Collectible(0.05f, boids[i].getPos()));
+                //collectibles.push_back(Collectible(0.05f, boids[i].getPos()));
               }
+              std::cout << "Boid Crashed" << std::endl;
               boids.erase(boids.begin() + i);
             }
             boids[i].draw(brightShader);
@@ -188,9 +189,11 @@ int main() {
         space.render(brightShader, textureShader);
 
 
-        textureShader.use();
-        glBindTexture(GL_TEXTURE_2D, sunTexture);
-        sun.draw();
+        //textureShader.use();
+        //glBindTexture(GL_TEXTURE_2D, sunTexture);
+        brightShader.use();
+        brightShader.setVec3("objectColor", glm::vec3(1.0f,1.0f,0.0f));
+        //sun.draw();
 
         lightingShader.use();
         lightingShader.setMat4("model", model);
@@ -206,12 +209,13 @@ int main() {
             box->draw(lightingShader);
             if(box->contains(player.getPos())){
               playSound(explosion);
-              game_over = true;
+              //game_over = true;
             }
           }
         }
 
         lightingShader.setVec3("objectColor", 0.5f, 0.5f, 0.5f);
+        /*
         Planet* last = nullptr;
         for(Planet& planet : planets){
           if(last != nullptr){
@@ -219,12 +223,6 @@ int main() {
           }
 
           brightShader.use();
-          /*
-          player.applyForce(
-              glm::normalize(planet.getPos() - player.getPos()),
-              glm::clamp(planet.gravity / (glm::distance(planet.getPos(), player.getPos()) * 0.4f), 0.0f, 1.0f)
-              );
-          */
           player.requestOrbit(planet.getPos(), planet.gravity * 20.0f);
           lightingShader.use();
           planet.draw();
@@ -233,6 +231,7 @@ int main() {
           }
           last = &planet;
         }
+        */
 
 
         brightShader.setVec3("objectColor", 1.0f, 1.0f, 0.0f);

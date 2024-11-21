@@ -59,8 +59,8 @@ private:
     float boidR, boidG, boidB;
 
     // Ray parameters
-    float rayStepSize = 0.0001f;
-    float rayMaxLength = 0.001f;
+    float rayStepSize = 0.1f;
+    float rayMaxLength = 1.0f;
 
     // Force coefficients
     float forceApplicationCoefficient = 0.75f;

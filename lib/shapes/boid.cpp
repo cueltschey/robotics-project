@@ -9,7 +9,7 @@
 Boid::Boid(long int frame, glm::vec3 start_pos){
 
 
-    directions = directions_from_view_angle(180.0f);
+    directions = directions_from_view_angle(360.0f);
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> colorDist(0.0f, 1.0f);
@@ -156,8 +156,10 @@ bool Boid::act(glm::vec3 goal_pos, std::vector<Obstacle*> obstacles, glm::vec3 f
           }
         }
       }
-      if(clear)
+      if(clear){
         applyForce(goal_direction, goalAttraction);
+      }
+
     }
     position += direction * speed;
     speed *= 0.92;
