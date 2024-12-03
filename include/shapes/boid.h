@@ -6,11 +6,41 @@
 #include <GL/glew.h>
 #include <vector>
 #include <cmath>
+#include <queue>
+#include <unordered_set>
 
 #include "shapes/box.h"
 #include "shapes/sphere.h"
 
 #include "utils/m_shader.h"
+
+
+namespace std {
+    template <>
+    struct hash<glm::vec3> {
+        size_t operator()(const glm::vec3& v) const {
+            size_t h1 = std::hash<float>()(v.x);
+            size_t h2 = std::hash<float>()(v.y);
+            size_t h3 = std::hash<float>()(v.z);
+            return h1 ^ (h2 << 1) ^ (h3 << 2);
+        }
+    };
+}
+
+struct Node {
+    glm::vec3 position;
+    float g = FLT_MAX;  // Cost from start
+    float h = 0.0f;     // Heuristic cost to goal
+    float f = FLT_MAX;  // Total cost
+    Node* parent = nullptr;
+
+    Node(glm::vec3 pos) : position(pos) {}
+
+    // Comparison operator for priority queue (min-heap)
+    bool operator>(const Node& other) const {
+        return f > other.f;
+    }
+};
 
 
 class Boid {
@@ -83,6 +113,19 @@ private:
 
     glm::vec3 direction;
     glm::vec3 position;
+    std::vector<glm::vec3> ray_points;
+
+
+
+    void drawPath(const std::vector<glm::vec3>& path, glm::vec3 boid_pos);
+
+    std::vector<glm::vec3> aStar(glm::vec3 start, glm::vec3 goal, std::vector<Obstacle*> boxes);
+
+    float manhattanDistance(const glm::vec3& a, const glm::vec3& b);
+
+    float chebyshevDistance(const glm::vec3& a, const glm::vec3& b);
+
+    float euclideanDistance(const glm::vec3& a, const glm::vec3& b);
 
 };
 

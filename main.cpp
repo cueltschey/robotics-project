@@ -55,11 +55,11 @@ int main() {
 
 
     int worldSize = 50;
-    std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>> box_map = generateRandomBoxes(10,1,worldSize);
+    std::unordered_map<std::tuple<int, int, int>, std::vector<Obstacle*>> box_map = generateRandomBoxes(1,1,worldSize);
     std::unordered_map<std::tuple<int, int, int>, std::vector<Boid>> boid_map;
-    generateRandomBoids(boid_map, 20, worldSize, box_map, 0, player.getPos());
-    generateRandomBoids(boid_map, 20, worldSize, box_map, 0, player.getPos());
-    generateRandomBoids(boid_map, 20, worldSize, box_map, 0, player.getPos());
+    generateRandomBoids(boid_map, 1, worldSize, box_map, 0, player.getPos());
+    generateRandomBoids(boid_map, 0, worldSize, box_map, 0, player.getPos());
+    generateRandomBoids(boid_map, 0, worldSize, box_map, 0, player.getPos());
 
     std::vector<Bullet> bullets;
     std::vector<Collectible> collectibles;
@@ -71,7 +71,7 @@ int main() {
     Shader textureShader("../shaders/texture.vs", "../shaders/texture.fs");
     Shader brightShader("../shaders/1.colors.vs", "../shaders/1.colors.fs");
 
-    Space space(200.0f, 100.0f, 1000, 100, player.getPos(), box_map);
+    Space space(200.0f, 100.0f, 1, 1, player.getPos(), box_map);
 
     Planet sun(30.0f, glm::vec3(0.0f,0.0f,0.0f), 2.5f);
 
@@ -82,9 +82,9 @@ int main() {
     moon.orbit(10.0f, 0.05f);
 
     std::vector<Planet> planets;
-    planets.push_back(sun);
-    planets.push_back(earth);
-    planets.push_back(moon);
+    //planets.push_back(sun);
+    //planets.push_back(earth);
+    //planets.push_back(moon);
 
     Timer timer;
 
@@ -103,7 +103,7 @@ int main() {
 
 
         if(shouldSpawnBoid(timer.get_frame()) && num_boids < 200){
-          generateRandomBoids(boid_map, 1, 20.0f, box_map, timer.get_frame(), player.getPos());
+          //generateRandomBoids(boid_map, 1, 20.0f, box_map, timer.get_frame(), player.getPos());
         }
 
         boid_map = recalculateCells(boid_map, num_boids);
@@ -190,7 +190,7 @@ int main() {
 
         textureShader.use();
         glBindTexture(GL_TEXTURE_2D, sunTexture);
-        sun.draw();
+        //sun.draw();
 
         lightingShader.use();
         lightingShader.setMat4("model", model);
