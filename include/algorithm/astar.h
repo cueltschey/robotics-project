@@ -65,7 +65,8 @@ float euclideanDistance(const glm::vec3& a, const glm::vec3& b)
 //Chebyshev Distance heuristic
 float chebyshevDistance(const glm::vec3& a, const glm::vec3& b)
 {
-    return std::max(std::abs(a.x -b.x) + std::abs(a.y - b.y) + std::abs(a.z - b.z));
+    float cadenvar1 = std::max(std::abs(a.x -b.x),std::abs(a.y - b.y));
+    return std::max(cadenvar1,std::abs(a.z - b.z));
 }
 
 // Manhattan distance heuristic
