@@ -20,7 +20,7 @@
 #include <cmath>
 #include <algorithm>
 #include <unordered_set>
-
+//Caden Adding Heuristics
 std::vector<glm::vec3> ray_points;
 
 
@@ -55,6 +55,19 @@ struct Node {
 
 
 
+
+//Euclidean Distance heuristic
+float euclideanDistance(const glm::vec3& a, const glm::vec3& b)
+{
+    return std::sqrt((std::pow(a.x -b.x,2)) + (std::pow(a.y-b.y,2)) + (std::pow(a.z-b.z,2)));
+}
+
+//Chebyshev Distance heuristic
+float chebyshevDistance(const glm::vec3& a, const glm::vec3& b)
+{
+    return std::max(std::abs(a.x -b.x) + std::abs(a.y - b.y) + std::abs(a.z - b.z));
+}
+
 // Manhattan distance heuristic
 float manhattanDistance(const glm::vec3& a, const glm::vec3& b) {
     return std::abs(a.x - b.x) + std::abs(a.y - b.y) + std::abs(a.z - b.z);
@@ -70,6 +83,8 @@ std::vector<glm::vec3> aStar(glm::vec3 start, glm::vec3 goal, const std::vector<
     Node* startNode = new Node(start);
     startNode->g = 0.0f;
     startNode->h = manhattanDistance(start, goal);
+    //neighborNode->h = chebyshevDistance(start, goal);
+    //neighborNode->h = euclideanDistance(start, goal);
     startNode->f = startNode->g + startNode->h;
     openSet.push(*startNode);
 
@@ -114,6 +129,8 @@ std::vector<glm::vec3> aStar(glm::vec3 start, glm::vec3 goal, const std::vector<
             Node* neighborNode = new Node(neighborPos);
             neighborNode->g = currentNode->g + gridSize;
             neighborNode->h = manhattanDistance(neighborPos, goal);
+            //neighborNode->h = chebyshevDistance(neighborPos, goal);
+            //neighborNode->h = euclideanDistance(neighborPos, goal);
             neighborNode->f = neighborNode->g + neighborNode->h;
             neighborNode->parent = currentNode;
 
