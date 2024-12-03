@@ -30,6 +30,7 @@
 #include "shapes/boid.h"
 #include "shapes/space.h"
 #include "utils/generation.h"
+#include "utils/kdtree.h"
 #include "utils/sound.h"
 #include "algorithm/flock.h"
 #include "shapes/collectible.h"
